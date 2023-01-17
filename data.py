@@ -15,16 +15,19 @@ def find_data_line_numbers(nb, yr, mm, dd, file):
     for num, line in enumerate(file, 1):
         if f'{yr} {mm} {dd}' in line and nb == num:
             pass
-        if f'{yr} {mm} {dd}' in line and nb != num:
+        if f'{30}   {100}' in line and num > nb:
             return num
         if line == '':
             return num
     return 0
 
-def make_data(nr_of_lines, file):
+def make_data(nr_of_lines, nr, file):
     data = []
     for num, line in enumerate(file, 1):
-        if num <= nr_of_lines:
+        if num == nr:
+            continue
+        if num <= nr + nr_of_lines - 1:
+            print(line)
             result = ''
             for count, ch in enumerate(line, 1):
                 if count == 1:
@@ -35,7 +38,8 @@ def make_data(nr_of_lines, file):
                 else:
                     result += ch
             result = list(filter(None, ((result.strip()).split(" "))))
-            data.append([i for i in result if i != 'B'])
+            result = [i for i in result if i != 'B']
+            data.append([i for i in result if i != 'A'])
     return data
 
 def get_data(raw_data):
@@ -52,15 +56,17 @@ def get_data(raw_data):
     return data
 
 if __name__ == "__main__":
-    data_file = open("vegasdata.txt", 'r')
-
-    year = int(input('What year do you want? Choose from 1935 - 2022: '))
-    while year > 1935 or year < 2022:
-        year = int(input('Please enter a valid value! Choose from 1935 - 2022: '))
+    year = int(input('What year do you want? Choose from 2018 - 2023: '))
+    while year < 2018 or year > 2023:
+        year = int(input('Please enter a valid value! Choose from 2018 - 2023: '))
 
     month, day = input('Choose the month and day as format mm dd: ').split(' ')
+    with open("vegasdata.txt", 'r') as data_file:
 
-    number = find_line_number(year, month, day, data_file)
-    number_of_lines = find_data_line_numbers(number, year, month, day, data_file)
-    raw_data = make_data(number_of_lines, data_file)
-    print(get_data(raw_data))
+        number = find_line_number(year, month, day, data_file)
+        print(number)
+        number_of_lines = find_data_line_numbers(number, year, month, day, data_file)
+        data_file.seek(0)
+        data_file = data_file.readlines()
+        raw_data = make_data(number_of_lines, number, data_file)
+        print(get_data(raw_data))
