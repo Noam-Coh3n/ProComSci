@@ -9,12 +9,16 @@ class MovingObject():
         self.pos = pos
         self.pos_list = []
         self.x_list = []
+        self.v_list = []
+        self.a_list = []
 
     def _add_new_pos(self):
         """ Change current position and add the node and edge.
         """
         self.pos_list.append(np.copy(self.pos))
         self.x_list.append(np.copy(self.x))
+        self.v_list.append(np.copy(self.v))
+        self.a_list.append(np.copy(self.a))
 
 class Diver(MovingObject):
 
@@ -42,6 +46,7 @@ class Diver(MovingObject):
         self.w = wind
         self.x = x
         self.v = vel
+        self.a = 0
         self.x_z_0 = self.x[2]
         self.h_shute = h_shute
         self.shute_pos = 0
@@ -104,6 +109,7 @@ class Diver(MovingObject):
         next_y = y + (k1 + 2*k2 + 2*k3 + k4)* h/6
         self.x = next_y[:3]
         self.v = next_y[3:]
+        self.a = k1[3:]
 
     def move(self):
         self.RK4()
