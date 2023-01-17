@@ -1,12 +1,12 @@
 import numpy as np
 from diver import Diver
 
-wind_list = np.array([[-30, 0], [10, 0]])
+wind_list = np.array([[-30, 0], [10, 0], [30, 60]])
 air_pres_list = [100000]
 temp_list = [280]
 
 
-myDiver = Diver(x=np.array([0.,0.,3600.]), vel=np.array([0.,600.,0.]), 
+myDiver = Diver(x=np.array([0.,0.,3600.]), vel=np.array([0.,-600.,0.]), 
             wind=wind_list, air_pressure=air_pres_list, temperature=temp_list,
             h_shute=200)
 # Run

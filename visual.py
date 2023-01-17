@@ -166,7 +166,26 @@ class Ball:
         self.color = color
         self.size = size
 
+class Text_X:
 
+    def __init__(self, pos, size, color):
+        self.pos = pos
+        self.color = color
+        self.line_width = 2
+        self.nodes = [Node(pos + np.array([-size, 0, -size])), Node(pos + np.array([size, 0, -size])),
+                      Node(pos + np.array([-size, 0, size])), Node(pos + np.array([size, 0, size]))]
+        self.edges = [Edge(self.nodes[0], self.nodes[3]), Edge(self.nodes[1], self.nodes[2])]
+
+class Text_Y:
+
+    def __init__(self, pos, size, color):
+        self.pos = pos
+        self.color = color
+        self.line_width = 2
+        self.nodes = [Node(pos + np.array([0, -size, -size])), Node(pos + np.array([0, size, -size])),
+                      Node(pos + np.array([0, -size, size])), Node(pos + np.array([0, 0, 0]))]
+        self.edges = [Edge(self.nodes[0], self.nodes[3]), Edge(self.nodes[1], self.nodes[2])]
+    
 # -------------------------------- World ---------------------------------------
 
 class World:
@@ -249,14 +268,12 @@ class World:
 
                 pygame.draw.line(game_display, obj.color, a_p, b_p, obj.line_width)
 
-        # Ball
+        # Point object.
         else:
             a = obj.pos
             a_s = self._rotate_pos(a)
             a_p = tuple(self._project_pos(a_s) * self.zoom)
             pygame.draw.circle(game_display, obj.color, a_p, obj.size)
-
-
 
 # -------------------------------- Game ----------------------------------------
 
@@ -273,6 +290,8 @@ class Visual:
         
         self.world.add_object(Arrow(500, np.array([1,0]), np.array([PARAMETER_SIZE/2 + 200, -PARAMETER_SIZE/2, DROP_HEIGHT/2]), green))
         self.world.add_object(Arrow(500, np.array([0,1]), np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 200, DROP_HEIGHT/2]), purple))
+        self.world.add_object(Text_X(np.array([PARAMETER_SIZE/2 + 1000, -PARAMETER_SIZE/2, DROP_HEIGHT/2]), 100, green))
+        self.world.add_object(Text_Y(np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 1000, DROP_HEIGHT/2]), 100, purple))
 
         self.cur_rotation = np.array([0,0,0])
         self.drawn2 = False
