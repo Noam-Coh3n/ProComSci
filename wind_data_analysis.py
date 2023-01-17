@@ -1,31 +1,28 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
-from constant import m_air, k_B_air
+from convert_data import convert_data
 
-def inv_prop(x, k):
-    return
 
-def density(pressure, temperature):
-    return (pressure * m_air) / (k_B_air * temperature)
+def inv_prop(x, a, b, c):
+    return a / (x + b) + c
 
-def convert_data(data):
-    rho = density(data['pressure'], data['temp'] / 10 + 273)
-    radials = data['wind_dir'] * 2 * np.pi / 360 # Convert deg to radials
-    w_x = np.sin(radials) * data['wind_vel']
-    w_y = np.cos(radials) * data['wind_vel']
-    return np.vstack((data['height'] / 10, rho, w_x, w_y))
+# def fit_data(x, y):
+#     X = np.array([[1 / x_i, 1] for x_i in x]).transpose()
+#     return np.linalg.inv((X @ X.transpose())) @ X @ y
+
 
 if __name__ == '__main__':
-    # data = pd.DataFrame({'height' : [1, 2, 3], 'pressure' : [100000, 99000, 98000], 'temp' : [293, 292, 291], 'degrees' : [89, 90, 91], 'wind_vel' : [10, 10, 10]})
-    # data_file = open("test_data.txt", "r")
     data = pd.read_csv('test_data.txt', sep=' ')
-    # print(data)
     height, rho, w_x, w_y = convert_data(data)
-    print(data['temp'])
+    params, _ = curve_fit(inv_prop, height, rho)
 
-    plt.plot(height, rho)
+    plt.plot(height, rho, 'r', label='observed values')
+    plt.plot(height, inv_prop(height, *params), 'b', label='fitted values')
+    plt.legend()
     plt.show()
+
 
 
