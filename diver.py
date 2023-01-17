@@ -8,11 +8,13 @@ class MovingObject():
     def __init__(self, pos: np.array):
         self.pos = pos
         self.pos_list = []
+        self.x_list = []
 
     def _add_new_pos(self):
         """ Change current position and add the node and edge.
         """
         self.pos_list.append(np.copy(self.pos))
+        self.x_list.append(np.copy(self.x))
 
 class Diver(MovingObject):
 
