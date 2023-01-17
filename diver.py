@@ -19,7 +19,8 @@ class MovingObject():
 class Diver(MovingObject):
 
     def __init__(self, x : np.array, vel : np.array, wind : list, \
-                 air_pressure : list, temperature : list, h_shute : int):
+                 air_pressure : list, temperature : list, h_shute : int ,\
+                 stepsize: float):
         
         self.m_person = 68.8
         self.m_gear = 14
@@ -48,7 +49,7 @@ class Diver(MovingObject):
         self.x2pos()
         super().__init__(self.pos)
 
-        self.step_size = 0.005 # Secondes.
+        self.step_size = stepsize
         self.line_width = 1
 
         # self.time = 0
