@@ -15,13 +15,19 @@ def inv_prop(x, a, b, c):
 
 
 if __name__ == '__main__':
-    data = pd.read_csv('test_data.txt', sep=' ')
+    data = np.array(pd.read_csv('test_data.txt', sep=' '))
+    data[:, [0, 1]] = data[:, [1, 0]]
+    print(data.transpose())
     height, rho, w_x, w_y = convert_data(data)
     params, _ = curve_fit(inv_prop, height, rho)
 
-    plt.plot(height, rho, 'r', label='observed values')
     plt.plot(height, inv_prop(height, *params), 'b', label='fitted values')
+    plt.plot(height, rho, 'r', label='observed values')
     plt.legend()
+    plt.show()
+
+    plt.plot(height, w_x, 'r', label=r'$w_x$')
+    plt.plot(height, w_y, 'b', label=r'$w_y$')
     plt.show()
 
 
