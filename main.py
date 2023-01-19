@@ -10,12 +10,12 @@ air_pres_list = [100000]
 temp_list = [280]
 
 # Add a diver.
-myDiver = Diver(x=np.array([0.,0.,3600.]), vel=np.array([0.,-600.,0.]), 
+myDiver = Diver(x=np.array([0.,0.,3600.]), vel=np.array([0.,-600.,0.]),
             wind=wind_list, air_pressure=air_pres_list, temperature=temp_list,
             h_shute=200, stepsize=STEP_SIZE)
 # Run model.
 while True:
-    if myDiver.x[2] <= 0: 
+    if myDiver.x[2] <= 0:
         break
     myDiver.move()
 

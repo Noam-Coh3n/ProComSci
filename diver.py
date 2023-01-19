@@ -25,7 +25,7 @@ class Diver(MovingObject):
     def __init__(self, x : np.array, vel : np.array, wind : list, \
                  air_pressure : list, temperature : list, h_shute : int ,\
                  stepsize: float):
-        
+
         self.m_person = 68.8
         self.m_gear = 14
         self.m = self.m_person + self.m_gear
@@ -46,7 +46,7 @@ class Diver(MovingObject):
         self.w = wind
         self.x = x
         self.v = vel
-        self.a = 0
+        self.a = [0, 0, 0]
         self.x_z_0 = self.x[2]
         self.h_shute = h_shute
         self.shute_pos = 0
@@ -86,7 +86,7 @@ class Diver(MovingObject):
             temp_part = int(x_z / (self.x_z_0 / len(self.temperature))) # locatie van temp van onder naar boven.
             pres_part = int(x_z / (self.x_z_0 / len(self.p_air)))
             wind_part = int(x_z / (self.x_z_0 / len(self.w)))
-        
+
         rho = (self.p_air[pres_part] * self.m_air) / (self.k_B_air * self.temperature[temp_part])
         drag_force = -0.5 * rho * np.array([
             C_side * A_side * (v_x - self.w[wind_part][0])**2 * np.sign(v_x - self.w[wind_part][0]),
@@ -111,10 +111,46 @@ class Diver(MovingObject):
         self.v = next_y[3:]
         self.a = k1[3:]
 
+    def euler(self):
+        h = self.step_size
+        y = np.append(self.x, self.v)
+
+        k = self._get_derivative(y)
+        next_y = y + h * k
+        self.x = next_y[:3]
+        self.v = next_y[3:]
+        self.a = k[3:]
+
+    def pred_correct(self):
+        h = self.step_size
+        y = np.append(self.x, self.v)
+        k1 = self._get_derivative(y)
+        next_y = y + h * k1
+        k2 = self._get_derivative(next_y)
+        second_y = y + h/2 * (k1 + k2)
+        self.x = second_y[:3]
+        self.v = second_y[3:]
+        self.a = k1[3:]
+
+    def central_diff(self):
+        h = self.step_size
+        prev_y = np.append(self.x_list[-1], self.v_list[-1])
+        y = np.append(self.x, self.v)
+
+        k = self._get_derivative(y)
+        next_y = prev_y + 2 * h * k
+        self.x = next_y[:3]
+        self.v = next_y[3:]
+        self.a = k[3:]
+
     def move(self):
         self.RK4()
+        # self.Euler()
+        # self.Pred_correct()
         self.x2pos()
         self._add_new_pos()
+        # self.central_diff()
+
 
     def x2pos(self):
         """ Get pos in cube from x location in real world.
