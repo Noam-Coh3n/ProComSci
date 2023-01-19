@@ -1,4 +1,5 @@
 import numpy as np
+import integration_methods as integration
 
 class MovingObject():
     """ An Object with an current position.
@@ -98,58 +99,24 @@ class Diver(MovingObject):
         return np.array([v_x, v_y, v_z, a_x, a_y, a_z])
 
     # Intergration methods.
-    def RK4(self):
-        h = self.step_size
-        y = np.append(self.x, self.v)
-
-        k1 = self._get_derivative(y)
-        k2 = self._get_derivative(y + h * k1/2)
-        k3 = self._get_derivative(y + h * k2/2)
-        k4 = self._get_derivative(y + h * k3)
-        next_y = y + (k1 + 2*k2 + 2*k3 + k4)* h/6
-        self.x = next_y[:3]
-        self.v = next_y[3:]
-        self.a = k1[3:]
-
-    def euler(self):
-        h = self.step_size
-        y = np.append(self.x, self.v)
-
-        k = self._get_derivative(y)
-        next_y = y + h * k
-        self.x = next_y[:3]
-        self.v = next_y[3:]
-        self.a = k[3:]
-
-    def pred_correct(self):
-        h = self.step_size
-        y = np.append(self.x, self.v)
-        k1 = self._get_derivative(y)
-        next_y = y + h * k1
-        k2 = self._get_derivative(next_y)
-        second_y = y + h/2 * (k1 + k2)
-        self.x = second_y[:3]
-        self.v = second_y[3:]
-        self.a = k1[3:]
-
-    def central_diff(self):
+    def integration(self, method):
         h = self.step_size
         prev_y = np.append(self.x_list[-1], self.v_list[-1])
         y = np.append(self.x, self.v)
 
-        k = self._get_derivative(y)
-        next_y = prev_y + 2 * h * k
+        if method == 'Central diff':
+            next_y, k = integration.integration_method(method, h, self._get_derivative, y, prev_y)
+        else:
+            next_y, k = integration.integration_method(method, h, self._get_derivative, y)
+
         self.x = next_y[:3]
         self.v = next_y[3:]
         self.a = k[3:]
 
     def move(self):
-        self.RK4()
-        # self.Euler()
-        # self.Pred_correct()
         self.x2pos()
         self._add_new_pos()
-        # self.central_diff()
+        self.integration('RK4')
 
 
     def x2pos(self):
