@@ -1,4 +1,4 @@
-import integration_methods as integration
+import integration
 from diver import Diver
 import numpy as np
 import matplotlib.pyplot as plt
