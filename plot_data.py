@@ -26,28 +26,29 @@ def fit_func(x: float, a: float, b: float, c: float) -> float:
     return a * x ** 2 + b * x + c
 
 
-def plot_data(data, data_variable=['windspeed', 'rho']):
+def plot_data(data, data_variable=['wind', 'rho']):
     """
     Fit and plot the data.
     """
 
     ylabels = [r'$v (m/s)$', r'$v (m/s)$', r'$\rho (kg / m^3)$']
     title_list = []
-    if 'rho' in data_variable:
-        title_list.append(r'The air density $\rho$')
     if 'wind' in data_variable:
         title_list.extend([r'Wind speed in the $x$ direction',
                            r'Wind speed in the $y$ direction'])
-    if 'change of speed' in data_variable:
+    if 'change' in data_variable:
         title_list.extend([r'Change of wind speed in $x$ direction',
                            r'Change of wind speed in $y$ direction'])
+    if 'rho' in data_variable:
+        title_list.append(r'The air density $\rho$')
 
     plt.figure(figsize=(14, 8), dpi=100)
     nr_of_subplots = len(data) - 1
 
     for i, title in enumerate(title_list, 1):
+        # print(i, ylabel, len(title_list))
         plt.subplot(int(f'1{nr_of_subplots}{i}'))
-        plot_and_fit(data[0], data[i], xlabel='height', ylabel=ylabels[i],
+        plot_and_fit(data[0], data[i], xlabel='height', ylabel=ylabels[i-1],
                      title=title)
 
     plt.tight_layout()
@@ -69,16 +70,16 @@ def plot_avg_and_std_dev(reg_x_vals, bins):
 
     # Plot the standard deviation and average.
     plt.fill_between(reg_x_vals,
-                     np.array(avg) - std_dev,
-                     np.array(avg) + std_dev,
+                     np.array(avg) - np.array(std_dev),
+                     np.array(avg) + np.array(std_dev),
                      alpha=0.7, color=COLOR_STD_DEV, label='std dev')
     plt.plot(reg_x_vals, avg, color=COLOR_AVG, label='avg values')
 
     a1, b1, c1 = params_avg
     a2, b2, c2 = params_std_dev
 
-    print(f'Average fitted:  {a1:.5e}x^2+{b1:.5e}x+{c1:.5e}')
-    print(f'Std dev fitted:  {a2:.5e}x^2+{b2:.5e}x+{c2:.5e}')
+    print(f'Average fitted:  {a1:.5e}h^2+{b1:.5e}h+{c1:.5e}')
+    print(f'Std dev fitted:  {a2:.5e}h^2+{b2:.5e}h+{c2:.5e}')
     print()
 
     # Plot the quadratic polynomials corresponding to the avg and std dev.
