@@ -113,13 +113,18 @@ class Diver(MovingObject):
         self.v = next_y[3:]
         self.a = k[3:]
 
-    def move(self):
+    def move(self, method):
         self.x2pos()
         self._add_new_pos()
-        self.integration('RK4')
-
+        self.integration(method)
 
     def x2pos(self):
         """ Get pos in cube from x location in real world.
         """
         self.pos = self.x * np.array([1, 1, -1]) + np.array([0, 0, self.x_z_0/2])
+
+    def simulate_trajectory(self, method):
+        while True:
+            if self.x[2] <= 0:
+                break
+            self.move(method)

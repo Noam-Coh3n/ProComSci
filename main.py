@@ -1,6 +1,7 @@
 import numpy as np
 from diver import Diver
 import matplotlib.pyplot as plt
+import integration_error as err
 
 STEP_SIZE = 0.005
 
@@ -8,16 +9,14 @@ STEP_SIZE = 0.005
 wind_list = np.array([[-30, 0], [10, 0], [30, 60]])
 air_pres_list = [100000]
 temp_list = [280]
+h_vals = np.arange(0.001, 0.13, 0.01)
 
 # Add a diver.
 myDiver = Diver(x=np.array([0.,0.,3600.]), vel=np.array([0.,-600.,0.]),
             wind=wind_list, air_pressure=air_pres_list, temperature=temp_list,
             h_shute=200, stepsize=STEP_SIZE)
 # Run model.
-while True:
-    if myDiver.x[2] <= 0:
-        break
-    myDiver.move()
+myDiver.simulate_trajectory('Pred-corr')
 
 # Plot location.
 for i, direction in enumerate(['x', 'y', 'z']):
@@ -44,6 +43,7 @@ for i, direction in enumerate(['x', 'y', 'z']):
 
 plt.show()
 
+err.simulate_error(h_vals)
 
 # from visual import Visual
 
