@@ -1,10 +1,9 @@
 import numpy as np
 import integration_methods as integration
 
+
 class MovingObject():
-    """ An Object with an current position.
-        Every new position the object has becomes a new Node.
-        There exists an edge between every node and the previous node.
+    """An object that keeps track of position,
     """
     def __init__(self, pos: np.array):
         self.pos = pos
@@ -14,17 +13,16 @@ class MovingObject():
         self.a_list = []
 
     def _add_new_pos(self):
-        """ Change current position and add the node and edge.
-        """
         self.pos_list.append(np.copy(self.pos))
         self.x_list.append(np.copy(self.x))
         self.v_list.append(np.copy(self.v))
         self.a_list.append(np.copy(self.a))
 
+
 class Diver(MovingObject):
 
-    def __init__(self, x : np.array, vel : np.array, wind : list, \
-                 air_pressure : list, temperature : list, h_shute : int ,\
+    def __init__(self, x: np.array, vel: np.array, wind: list,
+                 air_pressure: list, temperature: list, h_shute: int,
                  stepsize: float):
 
         self.m_person = 68.8
@@ -43,7 +41,7 @@ class Diver(MovingObject):
         self.C_shute_side = 0.35
         self.C_shute_below = 1.68
         self.A_shute_side = 23.9
-        self.A_shute_below = 47.8 # top?
+        self.A_shute_below = 47.8  # top?
         self.w = wind
         self.x = x
         self.v = vel
@@ -60,31 +58,32 @@ class Diver(MovingObject):
 
         # self.time = 0
 
-    def _get_derivative(self, data : np.array):
+    def _get_derivative(self, data: np.array):
         """ Determine speed and acceleration given the position and speed.
         """
         [x_x, x_y, x_z, v_x, v_y, v_z] = data
 
-        # Free fall or parashute.
+        # Free fall or parachute.
         if x_z > self.h_shute:
             C_side = self.C_person_side
             C_front = self.C_person_front
             A_side = self.A_person_side
             A_front = self.A_person_front
         else:
-            # self.time +=1
-            # if self.time < 250: print(self.time * self.step_size, self.v, self.x)
             if self.shute_pos == 0:
                 self.shute_pos = self.pos[2]
+
             C_side = self.C_shute_side
             C_front = self.C_shute_below
             A_side = self.A_shute_side
             A_front = self.A_shute_below
 
         if x_z == self.x_z_0:
-            temp_part, pres_part, wind_part = len(self.temperature)-1, len(self.p_air)-1, len(self.w)-1
+            temp_part = len(self.temperature) - 1
+            pres_part = len(self.p_air) - 1
+            wind_part = len(self.w) - 1
         else:
-            temp_part = int(x_z / (self.x_z_0 / len(self.temperature))) # locatie van temp van onder naar boven.
+            temp_part = int(x_z / (self.x_z_0 / len(self.temperature)))
             pres_part = int(x_z / (self.x_z_0 / len(self.p_air)))
             wind_part = int(x_z / (self.x_z_0 / len(self.w)))
 
@@ -98,7 +97,7 @@ class Diver(MovingObject):
         [a_x, a_y, a_z] = force / self.m
         return np.array([v_x, v_y, v_z, a_x, a_y, a_z])
 
-    # Intergration methods.
+    # Integration methods.
     def integration(self, method):
         h = self.step_size
         prev_y = np.append(self.x_list[-1], self.v_list[-1])
