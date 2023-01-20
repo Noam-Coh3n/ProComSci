@@ -98,7 +98,7 @@ def retrieve_rho_and_wind(data: list) -> list:
         # Wind.
         w_x = np.sin(radials) * vel / 10
         w_y = np.cos(radials) * vel / 10
-        result.append(np.vstack((height, rho, w_x, w_y)))
+        result.append(np.vstack((height, w_x, w_y, rho)))
 
     return result
 
@@ -132,33 +132,52 @@ def all_dates() -> list:
 
 
 def change_of_wind(dates):
-    height, _, w_x, w_y = retrieve_data_from_dates(dates)
+    height, w_x, w_y, _ = retrieve_data_from_dates(dates)
 
     rate_changes_x = []
     rate_changes_y = []
     new_height = []
+
+    h_diffs = []
+
+    x_increase = 0
+    y_increase = 0
+    counter = 0
+
     for cur_height, cur_w_x, cur_w_y in zip(height, w_x, w_y):
         if cur_height == 0:
             prev_height = cur_height
             prev_w_x = cur_w_x
             prev_w_y = cur_w_y
             continue
-        h_difference = cur_height - prev_height
+        h_diff = cur_height - prev_height
+        h_diffs.append(h_diff)
 
-        rate_changes_x.append((cur_w_x - prev_w_x) / h_difference)
-        rate_changes_y.append((cur_w_y - prev_w_y) / h_difference)
+        rate_changes_x.append((cur_w_x - prev_w_x) / h_diff)
+        rate_changes_y.append((cur_w_y - prev_w_y) / h_diff)
 
         avg_height = int(np.floor((prev_height + cur_height) / 2))
         new_height.append(avg_height)
+
+        x_increase += 1 if np.abs(prev_w_x) < np.abs(cur_w_x) else 0
+        y_increase += 1 if np.abs(prev_w_y) < np.abs(cur_w_y) else 0
+        counter += 1
 
         prev_height = cur_height
         prev_w_x = cur_w_x
         prev_w_y = cur_w_y
 
-    return new_height, rate_changes_x, rate_changes_y
+    increase_rates = [x_increase / counter, y_increase / counter]
+    avg_h_diff = sum(h_diffs) / len(h_diffs)
+    return new_height, rate_changes_x, rate_changes_y, increase_rates, avg_h_diff
 
 
 if __name__ == '__main__':
-    # remove_data_above_height(5500)
-    data = change_of_wind(all_dates())
-    plot_data(data, data_variable='change of speed')
+    # wind_data = retrieve_data_from_dates(all_dates())
+    # print(len(wind_data))
+    # plot_data(wind_data)
+
+    h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind(all_dates())
+    print(f'{increase_rates = }')
+    print(f'{avg_h_diff = }')
+    plot_data([h, c_x, c_y], data_variable='change')
