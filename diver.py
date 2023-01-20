@@ -1,5 +1,6 @@
 import numpy as np
 import integration
+from constants import *
 
 
 class Diver():
@@ -8,36 +9,24 @@ class Diver():
                  air_pressure: list, temperature: list, h_opening: int,
                  stepsize: float):
 
-        # Constant parameters
-        self.mass = 83
-        self.g = 9.81
-        self.F_gravity = np.array([0, 0, -self.m * self.g])
-        self.m_air = 4.81 * 10**(-26)
-        self.k_B_air = 1.38 * 10**(-23)
-        self.C_person_side = 1.11
-        self.C_person_front = 1.18
-        self.A_person_side = 0.38
-        self.A_person_front = 0.55
-        self.C_chute_side = 0.35
-        self.C_chute_below = 1.68
-        self.A_chute_side = 23.9
-        self.A_chute_below = 47.8  # top?
-
+        self.F_gravity = np.array([0, 0, -m_diver * g])
         self.p_air = air_pressure
         self.temperature = temperature
-        self.w = wind
+        self.wind = wind
+
         self.x = x
         self.v = vel
         self.a = [0, 0, 0]
+        self.x_list = []
+        self.v_list = []
+        self.a_list = []
+
         self.x_z_0 = self.x[2]
         self.h_opening = h_opening
         self.chute_pos = 0
 
         self.x2pos()
         self.pos_list = []
-        self.x_list = []
-        self.v_list = []
-        self.a_list = []
 
         self.step_size = stepsize
 
@@ -52,38 +41,37 @@ class Diver():
         """
         [x_x, x_y, x_z, v_x, v_y, v_z] = data
 
-        # Free fall or parachute.
+        # Free fall
         if x_z > self.h_opening:
-            C_side = self.C_person_side
-            C_front = self.C_person_front
-            A_side = self.A_person_side
-            A_front = self.A_person_front
+            C = C_diver
+            A = A_diver
+
+        # Under canopy
         else:
             if self.chute_pos == 0:
                 self.chute_pos = self.pos[2]
 
-            C_side = self.C_chute_side
-            C_front = self.C_chute_below
-            A_side = self.A_chute_side
-            A_front = self.A_chute_below
+            C = C_chute
+            A = A_chute
 
         if x_z == self.x_z_0:
             temp_part = len(self.temperature) - 1
             pres_part = len(self.p_air) - 1
-            wind_part = len(self.w) - 1
+            wind_part = len(self.wind) - 1
         else:
             temp_part = int(x_z / (self.x_z_0 / len(self.temperature)))
             pres_part = int(x_z / (self.x_z_0 / len(self.p_air)))
-            wind_part = int(x_z / (self.x_z_0 / len(self.w)))
+            wind_part = int(x_z / (self.x_z_0 / len(self.wind)))
 
-        rho = (self.p_air[pres_part] * self.m_air) / (self.k_B_air * self.temperature[temp_part])
+        rho = (self.p_air[pres_part] * m_air) / (kB * self.temperature[temp_part])
         F_drag = -0.5 * rho * np.array([
-            C_side * A_side * (v_x - self.w[wind_part][0])**2 * np.sign(v_x - self.w[wind_part][0]),
-            C_side * A_side * (v_y - self.w[wind_part][1])**2 * np.sign(v_y - self.w[wind_part][1]),
-            C_front * A_front * v_z**2 * np.sign(v_z)])
-        force = F_drag + self.F_gravity
+            C.side * A.side * (v_x - self.wind[wind_part][0])**2 * np.sign(v_x - self.wind[wind_part][0]),
+            C.side * A.side * (v_y - self.wind[wind_part][1])**2 * np.sign(v_y - self.wind[wind_part][1]),
+            C.front * A.front * v_z**2 * np.sign(v_z)])
 
-        [a_x, a_y, a_z] = force / self.m
+        F = F_drag + self.F_gravity
+
+        [a_x, a_y, a_z] = F / m_diver
         return np.array([v_x, v_y, v_z, a_x, a_y, a_z])
 
     # Integration methods.
