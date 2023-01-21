@@ -13,8 +13,7 @@ h_vals = np.arange(0.001, 0.13, 0.01)
 
 # Add a diver.
 myDiver = Diver(x=np.array([0.,0.,3600.]), vel=np.array([0.,-600.,0.]),
-            wind=wind_list, air_pressure=air_pres_list, temperature=temp_list,
-            h_shute=200, stepsize=STEP_SIZE)
+                h_shute=200, stepsize=STEP_SIZE)
 # Run model.
 myDiver.simulate_trajectory('Pred-corr')
 

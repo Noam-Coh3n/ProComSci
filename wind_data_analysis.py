@@ -18,17 +18,18 @@ import matplotlib.pyplot as plt
 from os import path
 import re
 
-from constant import m_air, k_B_air
+from constants import m_air, kB
 from plot_data import plot_data
 
 # Numbers in the dataset that indicate a corrupt entry.
 CORRUPT_VALUES = {-8888, -9999}
 
+
 def density(pressure: float, temperature: float) -> float:
     """
     Calculates the air density from the air pressure and temperature.
     """
-    return (pressure * m_air) / (k_B_air * temperature)
+    return (pressure * m_air) / (kB * temperature)
 
 
 def clean_up_data_line(line: str) -> tuple:
@@ -178,6 +179,6 @@ if __name__ == '__main__':
     # plot_data(wind_data)
 
     h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind(all_dates())
-    print(f'{increase_rates = }')
-    print(f'{avg_h_diff = }')
+    # print(f'{increase_rates = }')
+    # print(f'{avg_h_diff = }')
     plot_data([h, c_x, c_y], data_variable='change')

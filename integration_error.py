@@ -6,9 +6,6 @@ import matplotlib.pyplot as plt
 # Define parameters used for the diver and define the methods that will be
 # comperd.
 h = 0.001
-wind_list = np.array([[-30, 0], [10, 0], [30, 60]])
-air_pres_list = [100000]
-temp_list = [280]
 method = ['RK4', 'Euler', 'Central diff', 'Pred-corr']
 
 
@@ -21,8 +18,7 @@ def simulate_error(h_vals):
     # Get diver data with stepsize 0.001.
     myDiver = Diver(x=np.array([0., 0., 3600.]),
                     vel=np.array([0., -600., 0.]),
-                    wind=wind_list, air_pressure=air_pres_list,
-                    temperature=temp_list, h_shute=200, stepsize=h)
+                    h_shute=200, stepsize=h, seed=0)
 
     # Simulate the diver with Runge-kutta order 4
     myDiver.simulate_trajectory('RK4')
@@ -40,8 +36,7 @@ def simulate_error(h_vals):
             # Add a diver.
             myDiver = Diver(x=np.array([0., 0., 3600.]),
                             vel=np.array([0., -600., 0.]),
-                            wind=wind_list, air_pressure=air_pres_list,
-                            temperature=temp_list, h_shute=200, stepsize=j)
+                            h_shute=200, stepsize=j, seed=0)
             # Run model with the different models and stepsizes.
             myDiver.simulate_trajectory(i)
 

@@ -1,18 +1,18 @@
 import numpy as np
 import integration
 from constants import *
+from wind_and_rho_generator import rho, wind
 
 
 class Diver():
 
-    def __init__(self, x: np.array, vel: np.array, wind: list,
-                 air_pressure: list, temperature: list, h_opening: int,
-                 stepsize: float):
+    def __init__(self, x: np.array, vel: np.array, h_opening: int,
+                 stepsize: float, seed=None):
 
         self.F_gravity = np.array([0, 0, -m_diver * g])
-        self.p_air = air_pressure
-        self.temperature = temperature
-        self.wind = wind
+        self.rho = rho
+        self.wind_x = wind(wind_dir='x', seed=seed)
+        self.wind_y = wind(wind_dir='y', seed=seed)
 
         self.x = x
         self.v = vel
@@ -39,7 +39,7 @@ class Diver():
     def _get_derivative(self, data: np.array):
         """ Determine speed and acceleration given the position and speed.
         """
-        [x_x, x_y, x_z, v_x, v_y, v_z] = data
+        _, _, x_z, v_x, v_y, v_z = data
 
         # Free fall
         if x_z > self.h_opening:
@@ -54,19 +54,12 @@ class Diver():
             C = C_chute
             A = A_chute
 
-        if x_z == self.x_z_0:
-            temp_part = len(self.temperature) - 1
-            pres_part = len(self.p_air) - 1
-            wind_part = len(self.wind) - 1
-        else:
-            temp_part = int(x_z / (self.x_z_0 / len(self.temperature)))
-            pres_part = int(x_z / (self.x_z_0 / len(self.p_air)))
-            wind_part = int(x_z / (self.x_z_0 / len(self.wind)))
-
-        rho = (self.p_air[pres_part] * m_air) / (kB * self.temperature[temp_part])
+        rho = self.rho(x_z)
+        w_x = self.wind_x(x_z)
+        w_y = self.wind_y(x_z)
         F_drag = -0.5 * rho * np.array([
-            C.side * A.side * (v_x - self.wind[wind_part][0])**2 * np.sign(v_x - self.wind[wind_part][0]),
-            C.side * A.side * (v_y - self.wind[wind_part][1])**2 * np.sign(v_y - self.wind[wind_part][1]),
+            C.side * A.side * (v_x - w_x)**2 * np.sign(v_x - w_x),
+            C.side * A.side * (v_y - w_y)**2 * np.sign(v_y - w_y),
             C.front * A.front * v_z**2 * np.sign(v_z)])
 
         F = F_drag + self.F_gravity
