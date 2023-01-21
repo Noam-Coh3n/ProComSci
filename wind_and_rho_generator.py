@@ -2,17 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
 
-wind_avg = [lambda h : -9.92173e-08 * h**2-1.00840e-03*h-6.75451e-01,
-           lambda h : -6.25094e-08 * h**2+1.92637e-04*h-7.97702e-02]
+wind_avg = [lambda h : -9.92173e-08 * h ** 2 - 1.00840e-03 * h - 6.75451e-01,
+           lambda h : -6.25094e-08 * h ** 2 + 1.92637e-04 * h - 7.97702e-02]
 
-wind_std_dev = [lambda h : -6.89111e-09 * h**2+1.35294e-03*h+2.97040e+00,
-                lambda h : -8.93228e-08 * h**2+1.61771e-03*h+4.55504e+00]
+wind_std_dev = [lambda h : -6.89111e-09 * h ** 2 + 1.35294e-03 * h + 2.97040e+00,
+                lambda h : -8.93228e-08 * h ** 2 + 1.61771e-03 * h + 4.55504e+00]
 
-change_avg = [lambda h : 2.90173e-12 * h**2+-4.29020e-07*h+-1.00713e-03,
-              lambda h : 1.51600e-10 * h**2+-6.80284e-07*h+9.23514e-04]
+change_avg = [lambda h : 2.90173e-12 * h ** 2 - 4.29020e-07 * h - 1.00713e-03,
+              lambda h : 1.51600e-10 * h ** 2 - 6.80284e-07 * h + 9.23514e-04]
 
-change_std_dev = [lambda h : 1.46347e-10 * h**2+-1.06378e-06*h+1.06364e-02,
-                  lambda h : 5.65310e-10 * h**2+-3.44977e-06*h+1.32486e-02]
+change_std_dev = [lambda h : 1.46347e-10 * h ** 2 - 1.06378e-06 * h + 1.06364e-02,
+                  lambda h : 5.65310e-10 * h ** 2 - 3.44977e-06 * h + 1.32486e-02]
 
 
 wind_lowerbound = [lambda h : wind_avg[0](h) - 2 * wind_std_dev[0](h),
@@ -26,9 +26,10 @@ AVG_H_DIFF = 247
 
 
 def rho(h):
-    return 1.70708e-09 * h**2+-9.65846e-05 * h+1.10647e+00
+    return 1.70708e-09 * h ** 2 - 9.65846e-05 * h + 1.10647e+00
 
-def wind(wind_dir='x', seed=None, max_height=4800, height_stepsize=AVG_H_DIFF):
+def wind(wind_dir='x', seed=None, max_height=4800,
+         height_stepsize=AVG_H_DIFF, plot=False):
     if seed is not None:
         np.random.seed(seed)
 
@@ -63,9 +64,12 @@ def wind(wind_dir='x', seed=None, max_height=4800, height_stepsize=AVG_H_DIFF):
         wind[int(h / height_stepsize) + 1] = cur_wind
 
     cs = CubicSpline(wind_heights, wind)
-    # plt.plot(np.arange(0,4800,10), cs(np.arange(0,4800,10)))
-    # plt.title(wind_dir)
-    # plt.show()
+    if plot:
+        plt.plot(np.arange(0, 4800, 10), cs(np.arange(0, 4800, 10)))
+        plt.xlabel(r'height (m)')
+        plt.ylabel(r'$v (m/s)$')
+        plt.title(f'Wind in {wind_dir}-direction.')
+        plt.show()
     return cs
 
 
