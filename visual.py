@@ -64,9 +64,9 @@ class Edge:
     def __init__(self, node1 : Node, node2: Node):
         self.node1 = node1
         self.node2 = node2
-    
+
 class Cube:
-    """ 3D object with specific node positions and edges such that 
+    """ 3D object with specific node positions and edges such that
         it creates a cube.
     """
     def __init__(self,  measure : tuple, pos : np.array):
@@ -82,13 +82,13 @@ class Cube:
         y = np.array([0,b,0])
         z = np.array([0,0,c])
 
-        self.nodes = [Node(pos), Node(pos + x), Node(pos + x + y), 
-                      Node(pos + x + z), Node(pos + x + y + z), Node(pos + y), 
+        self.nodes = [Node(pos), Node(pos + x), Node(pos + x + y),
+                      Node(pos + x + z), Node(pos + x + y + z), Node(pos + y),
                       Node(pos + y + z), Node(pos + z)]
 
-        self.edges = [Edge(self.nodes[0], self.nodes[1]), Edge(self.nodes[0], self.nodes[5]), Edge(self.nodes[0], self.nodes[7]), 
-                      Edge(self.nodes[2], self.nodes[1]), Edge(self.nodes[2], self.nodes[5]), Edge(self.nodes[2], self.nodes[4]), 
-                      Edge(self.nodes[6], self.nodes[4]), Edge(self.nodes[6], self.nodes[7]), Edge(self.nodes[6], self.nodes[5]), 
+        self.edges = [Edge(self.nodes[0], self.nodes[1]), Edge(self.nodes[0], self.nodes[5]), Edge(self.nodes[0], self.nodes[7]),
+                      Edge(self.nodes[2], self.nodes[1]), Edge(self.nodes[2], self.nodes[5]), Edge(self.nodes[2], self.nodes[4]),
+                      Edge(self.nodes[6], self.nodes[4]), Edge(self.nodes[6], self.nodes[7]), Edge(self.nodes[6], self.nodes[5]),
                       Edge(self.nodes[3], self.nodes[7]), Edge(self.nodes[3], self.nodes[1]), Edge(self.nodes[3], self.nodes[4])]
 
 class Circ:
@@ -104,12 +104,12 @@ class Circ:
         self.edges = []
         for i in range(nr_points):
             self.nodes.append(Node(np.array([np.cos(rot*i) * measure + pos[0], np.sin(rot*i) * measure + pos[1], pos[2]])))
-            if i != 0: 
+            if i != 0:
                 self.edges.append(Edge(self.nodes[-2], self.nodes[-1]))
         self.edges.append(Edge(self.nodes[-1], self.nodes[0]))
 
 class Arrow:
-    """ 3D object with specific node positions and edges such that 
+    """ 3D object with specific node positions and edges such that
         it creates a arrow.
     """
     def __init__(self, size : int, direction : np.array, pos: np.array, color=blue):
@@ -144,7 +144,7 @@ class Wind:
 
         self.objects = []
         for c, direction in enumerate(directions):
-            self.objects.append(Arrow(30, direction, np.array([0, 0, -((c+1)/(len(directions) + 1)*length - length/2)])))
+            self.objects.append(Arrow(60, direction, np.array([0, 0, -((c+1)/(len(directions) + 1)*length - length/2)])))
 
 class Line:
 
@@ -159,7 +159,7 @@ class Line:
         self.nodes.append(Node(pos))
         if len(self.nodes) >= 2:
             self.edges.append(Edge(self.nodes[-2], self.nodes[-1]))
-    
+
 class Ball:
     def __init__(self, pos, color, size):
         self.pos = pos
@@ -185,7 +185,7 @@ class Text_Y:
         self.nodes = [Node(pos + np.array([0, -size, -size])), Node(pos + np.array([0, size, -size])),
                       Node(pos + np.array([0, -size, size])), Node(pos + np.array([0, 0, 0]))]
         self.edges = [Edge(self.nodes[0], self.nodes[3]), Edge(self.nodes[1], self.nodes[2])]
-    
+
 # -------------------------------- World ---------------------------------------
 
 class World:
@@ -219,10 +219,11 @@ class World:
     def _project_pos(self, pos: np.array):
         """ Project 3 dim position to a 2 dim position.
         """
+
         angle_x = np.arctan2((pos[0] - self.camera_pos[0]), (pos[1] - self.camera_pos[1]))
         angle_z = np.arctan2((pos[2] - self.camera_pos[2]), (pos[1] - self.camera_pos[1]))
 
-        return np.array([SCREEN_SIZE/2 + angle_x/(self.camera_max_angle * np.pi) * SCREEN_SIZE/2, 
+        return np.array([SCREEN_SIZE/2 + angle_x/(self.camera_max_angle * np.pi) * SCREEN_SIZE/2,
                          SCREEN_SIZE/2 + angle_z/(self.camera_max_angle * np.pi) * SCREEN_SIZE/2])
 
     def add_object(self, obj):
@@ -235,7 +236,7 @@ class World:
         self.rotation += rot * 0.05
 
     def update(self, next_pos, end):
-        
+
         for obj in self.objects:
             if 'move' in dir(obj):
                 obj.move()
@@ -279,25 +280,30 @@ class World:
 
 class Visual:
 
-    def __init__(self, wind: list, air_pressure: list, temperature: list):
+    def __init__(self):
 
         self.world = World()
 
-        self.world.add_object(Cube(measure=(PARAMETER_SIZE, PARAMETER_SIZE, DROP_HEIGHT), 
+        self.world.add_object(Cube(measure=(PARAMETER_SIZE, PARAMETER_SIZE, DROP_HEIGHT),
             pos=np.array([-PARAMETER_SIZE/2, -PARAMETER_SIZE/2, -DROP_HEIGHT/2])))
-
-        self.world.add_object_cluster(Wind(wind, 4000))
-        
-        self.world.add_object(Arrow(500, np.array([1,0]), np.array([PARAMETER_SIZE/2 + 200, -PARAMETER_SIZE/2, DROP_HEIGHT/2]), green))
-        self.world.add_object(Arrow(500, np.array([0,1]), np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 200, DROP_HEIGHT/2]), purple))
-        self.world.add_object(Text_X(np.array([PARAMETER_SIZE/2 + 1000, -PARAMETER_SIZE/2, DROP_HEIGHT/2]), 100, green))
-        self.world.add_object(Text_Y(np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 1000, DROP_HEIGHT/2]), 100, purple))
 
         self.cur_rotation = np.array([0,0,0])
         self.drawn2 = False
 
     def add_diver(self, diver):
         self.diver = diver
+
+        nr_of_arrows = 10
+        heights = np.linspace(0, diver.x_z_0, nr_of_arrows * 2 + 1)
+        heights = heights[1::2]
+
+        wind = np.array(list(zip(diver.wind_x(heights), diver.wind_y(heights))))
+        self.world.add_object_cluster(Wind(wind, 4000))
+
+        self.world.add_object(Arrow(500, np.array([1,0]), np.array([PARAMETER_SIZE/2 + 200, -PARAMETER_SIZE/2, DROP_HEIGHT/2]), green))
+        self.world.add_object(Arrow(500, np.array([0,1]), np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 200, DROP_HEIGHT/2]), purple))
+        self.world.add_object(Text_X(np.array([PARAMETER_SIZE/2 + 1000, -PARAMETER_SIZE/2, DROP_HEIGHT/2]), 100, green))
+        self.world.add_object(Text_Y(np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 1000, DROP_HEIGHT/2]), 100, purple))
         self.world.add_object(Line())
 
     def select_line_interval(self, interval: int):
@@ -318,7 +324,7 @@ class Visual:
                 self.frame += 1
 
             # Show phase points.
-            if self.traject[self.frame][2] > self.diver.shute_pos and not self.drawn2:
+            if self.traject[self.frame][2] > self.diver.chute_pos and not self.drawn2:
                 self.world.add_object(Ball(self.traject[self.frame], yellow, 4))
                 self.drawn2 = True
 
@@ -327,8 +333,8 @@ class Visual:
             self.next_pos = None
             self.end = True
         self.world.update(self.next_pos, self.end)
-        
-    def run(self, slowed):     
+
+    def run(self, slowed):
         self.slowed = slowed
         self.time = 0
         self.frame = 0

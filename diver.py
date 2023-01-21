@@ -89,7 +89,7 @@ class Diver():
 
     def x2pos(self):
         """Get position in cube from x location in real world."""
-        self.pos = self.x * np.array([1, 1, -1]) + np.array([0, 0, self.x_z_0/2])
+        self.pos = self.x * np.array([2, 2, -1]) + np.array([0, 0, self.x_z_0/2])
 
     def simulate_trajectory(self, method):
         while True:
