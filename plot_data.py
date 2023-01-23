@@ -8,14 +8,14 @@
 
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from IPython.display import Latex
 import numpy as np
+from constants import *
 
 # Define colors for the plots.
 COLOR_AVG = '#319600'
-COLOR_STD_DEV = '#00696b'
+COLOR_dev = '#00696b'
 COLOR_FITTED_AVG = '#1c0f00'
-COLOR_FITTED_STD_DEV = '#700000'
+COLOR_FITTED_dev = '#700000'
 COLOR_DATASET = '#02006b'
 
 
@@ -54,52 +54,7 @@ def plot_data(data, data_variable=['wind', 'rho']):
     plt.tight_layout()
     plt.show()
 
-
-def plot_avg_and_std_dev(reg_x_vals, bins):
-    # Calculate the average and standard deviation.
-    avg = [sum(y for (_, y) in bin) / len(bin) for bin in bins]
-    std_dev = [np.sqrt(sum((y - avg[i])**2 for (_, y) in bin) / (len(bin) - 1))
-               for i, bin in enumerate(bins)]
-
-    # Fit the average and standard deviation using a quadratic polynomial.
-    params_avg, _ = curve_fit(fit_func, reg_x_vals, avg)
-    params_std_dev, _ = curve_fit(fit_func, reg_x_vals, std_dev)
-
-    fitted_y_vals = fit_func(reg_x_vals, *params_avg)
-    fitted_std_dev_vals = fit_func(reg_x_vals, *params_std_dev)
-
-    # Plot the standard deviation and average.
-    plt.fill_between(reg_x_vals,
-                     np.array(avg) - np.array(std_dev),
-                     np.array(avg) + np.array(std_dev),
-                     alpha=0.7, color=COLOR_STD_DEV, label='std dev')
-    plt.plot(reg_x_vals, avg, color=COLOR_AVG, label='avg values')
-
-    a1, b1, c1 = params_avg
-    a2, b2, c2 = params_std_dev
-
-    print(f'Average fitted:  {a1:.5e}h^2+{b1:.5e}h+{c1:.5e}')
-    print(f'Std dev fitted:  {a2:.5e}h^2+{b2:.5e}h+{c2:.5e}')
-    print()
-
-    # Plot the quadratic polynomials corresponding to the avg and std dev.
-    plt.plot(reg_x_vals, fitted_y_vals, color=COLOR_FITTED_AVG,
-             label='avg value fit: quadratic')
-    plt.plot(reg_x_vals, fitted_y_vals + fitted_std_dev_vals,
-             color=COLOR_FITTED_STD_DEV, label='std dev fit: quadratic')
-    plt.plot(reg_x_vals, fitted_y_vals - fitted_std_dev_vals,
-             color=COLOR_FITTED_STD_DEV)
-
-
-def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
-                 ylabel: str = '', title: str = '') -> None:
-    """
-    This function does the following:
-    - Plot the given data as a scatter plot.
-    - Plot the average value and standard deviation at every point.
-    - Plot the average value fitted to a quadratic polynomial.
-    - Plot the standard deviation fitted to a quadratic polynomial.
-    """
+def avg_and_dev_fitter(x_vals, y_vals):
     stepsize = 50
     reg_x_vals = np.arange(min(x_vals), max(x_vals), stepsize)
     # Order the data in bins.
@@ -111,11 +66,56 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
             index -= 1
         bins[index].append((x, y))
 
+    # Calculate the average and standard deviation.
+    avg = [sum(y for (_, y) in bin) / len(bin) if bin else 0 for bin in bins]
+    dev = [np.sqrt(sum((y - avg[i])**2 for (_, y) in bin) / (len(bin) - 1))
+               if len(bin) >= 2 else 0 for i, bin in enumerate(bins)]
+
+    # Fit the average and standard deviation using a quadratic polynomial.
+    params_avg, _ = curve_fit(fit_func, reg_x_vals, avg)
+    params_dev, _ = curve_fit(fit_func, reg_x_vals, dev)
+
+    avg_fitter = lambda h : fit_func(h, *params_avg)
+    dev_fitter = lambda h : fit_func(h, *params_dev)
+
+    return reg_x_vals, avg, dev, (avg_fitter, dev_fitter)
+
+
+def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
+                 ylabel: str = '', title: str = '') -> None:
+    """
+    This function does the following:
+    - Plot the given data as a scatter plot.
+    - Plot the average value and standard deviation at every point.
+    - Plot the average value fitted to a quadratic polynomial.
+    - Plot the standard deviation fitted to a quadratic polynomial.
+    """
+
     # Plot the dataset.
     plt.scatter(x_vals, y_vals, alpha=0.4, s=1,
                 c=COLOR_DATASET, label='observed data')
 
-    plot_avg_and_std_dev(reg_x_vals, bins)
+    reg_x_vals, avg, dev, fitters = avg_and_dev_fitter(x_vals, y_vals)
+    avg_fitter, dev_fitter = fitters
+
+    fitted_y_vals = avg_fitter(reg_x_vals)
+    fitted_dev_vals = dev_fitter(reg_x_vals)
+
+    # Plot the standard deviation and average.
+    plt.fill_between(reg_x_vals,
+                     np.array(avg) - np.array(dev),
+                     np.array(avg) + np.array(dev),
+                     alpha=0.7, color=COLOR_dev, label='std dev')
+    plt.plot(reg_x_vals, avg, color=COLOR_AVG, label='avg values')
+
+    # Plot the quadratic polynomials corresponding to the avg and std dev.
+    plt.plot(reg_x_vals, fitted_y_vals, color=COLOR_FITTED_AVG,
+             label='avg value fit: quadratic')
+    plt.plot(reg_x_vals, fitted_y_vals + fitted_dev_vals,
+             color=COLOR_FITTED_dev, label='std dev fit: quadratic')
+    plt.plot(reg_x_vals, fitted_y_vals - fitted_dev_vals,
+             color=COLOR_FITTED_dev)
+    # plot_avg_and_dev(reg_x_vals, bins)
 
     plt.title(title)
     plt.xlabel(xlabel)

@@ -79,13 +79,25 @@ def remove_data_above_height(max_height: int) -> None:
             new_data_file.write(line_data)
 
 
-def retrieve_rho_and_wind(data: list) -> list:
+def retrieve_rho_and_wind(data: list, w_x_bounds, w_y_bounds) -> list:
     """
     Returns the height, air density (rho) and wind data when being given
     the height, pressure, temperature and wind data.
     """
+    (x_low, x_high) = w_x_bounds if w_x_bounds else (-np.inf, np.inf)
+    (y_low, y_high) = w_y_bounds if w_y_bounds else (-np.inf, np.inf)
+
+    # print(w_x_bounds)
+    # print(w_y_bounds)
+    # x_low, x_high = w_x_bounds
+    # y_low, y_high = w_y_bounds
+    # print(x_low, x_high, y_low, y_high)
+    # print(data)
+
     result = []
     for data_item in data:
+        if not data_item:
+            continue
         # Converts the data string into a numpy array.
         data_item = np.fromstring(data_item, sep=' ')
         data_item = np.reshape(data_item, (-1, 5))
@@ -99,26 +111,36 @@ def retrieve_rho_and_wind(data: list) -> list:
         # Wind.
         w_x = np.sin(radials) * vel / 10
         w_y = np.cos(radials) * vel / 10
-        result.append(np.vstack((height, w_x, w_y, rho)))
+        # print(w_x)
+        # print(w_y)
+        if x_low < w_x[0] and w_x[0] < x_high and \
+             y_low < w_y[0] and w_y[0] < y_high:
+            result.append(np.vstack((height, w_x, w_y, rho)))
 
     return result
 
 
-def retrieve_data_from_dates(dates: list) -> list:
-    """
-    Returns the air density (rho) and wind data of the specified dates.
-    """
+def retrieve_data_separate(w_x_bounds=None, w_y_bounds=None):
     result_data = []
     raw_data = str(open('wind_data.txt', 'r').read())
 
-    # Extends the result_data with the data of all the specified dates.
-    for (y, m, d) in dates:
+    # Extends the result_data with the data of all dates.
+    for (y, m, d) in all_dates():
         data = re.findall(rf'# {y} {m:02} {d:02} #\n([\s\S]*?)#', raw_data)
-        result_data.extend(retrieve_rho_and_wind(data))
+        result_data.extend(retrieve_rho_and_wind(data, w_x_bounds, w_y_bounds))
+    return result_data
+
+
+def retrieve_data_combined(w_x_bounds=None, w_y_bounds=None) -> list:
+    """
+    Returns the air density (rho) and wind data of the specified dates.
+    """
+
+    separate_data = retrieve_data_separate(w_x_bounds, w_y_bounds)
 
     # Combines all the data to get 4 lists: height, rho, w_x, w_y.
     data = [[], [], [], []]
-    for item in result_data:
+    for item in separate_data:
         for i in range(4):
             data[i].extend(item[i])
     return data
@@ -132,8 +154,8 @@ def all_dates() -> list:
             for m in range(1, 13) for d in range(1, 32)]
 
 
-def change_of_wind(dates):
-    height, w_x, w_y, _ = retrieve_data_from_dates(dates)
+def change_of_wind(w_x_bounds=None, w_y_bounds=None):
+    height, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
 
     rate_changes_x = []
     rate_changes_y = []
@@ -174,11 +196,15 @@ def change_of_wind(dates):
 
 
 if __name__ == '__main__':
-    # wind_data = retrieve_data_from_dates(all_dates())
-    # print(len(wind_data))
-    # plot_data(wind_data)
+    begin = 0
+    restrictions = [(-np.inf, begin), (begin, np.inf)]
+    for x_res in restrictions:
+        for y_res in restrictions:
+            wind_data = retrieve_data_combined(x_res, y_res)
+            plot_data(wind_data)
 
-    h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind(all_dates())
-    # print(f'{increase_rates = }')
-    # print(f'{avg_h_diff = }')
-    plot_data([h, c_x, c_y], data_variable='change')
+
+            h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind()
+            # print(f'{increase_rates = }')
+            # print(f'{avg_h_diff = }')
+            plot_data([h, c_x, c_y], data_variable='change')
