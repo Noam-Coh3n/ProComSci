@@ -1,18 +1,18 @@
 import numpy as np
 import integration
 from constants import *
-from wind_and_rho_generator import rho, wind
+from wind_and_rho_generator import *
 
 
 class Diver():
 
-    def __init__(self, x: np.array, vel: np.array, h_opening: int,
-                 stepsize: float, seed=None):
+    def __init__(self, x: np.array, vel: np.array, wind,
+                 stepsize: float = 0.001, seed=None):
 
         self.F_gravity = np.array([0, 0, -m_diver * g])
         self.rho = rho
-        self.wind_x = wind(wind_dir='x', seed=seed)
-        self.wind_y = wind(wind_dir='y', seed=seed)
+        self.wind_x = wind.wind(wind_dir='x', seed=seed)
+        self.wind_y = wind.wind(wind_dir='y', seed=seed)
 
         self.x = x
         self.v = vel
