@@ -1,77 +1,89 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
-
-wind_avg = [lambda h : -9.92173e-08 * h ** 2 - 1.00840e-03 * h - 6.75451e-01,
-           lambda h : -6.25094e-08 * h ** 2 + 1.92637e-04 * h - 7.97702e-02]
-
-wind_std_dev = [lambda h : -6.89111e-09 * h ** 2 + 1.35294e-03 * h + 2.97040e+00,
-                lambda h : -8.93228e-08 * h ** 2 + 1.61771e-03 * h + 4.55504e+00]
-
-change_avg = [lambda h : 2.90173e-12 * h ** 2 - 4.29020e-07 * h - 1.00713e-03,
-              lambda h : 1.51600e-10 * h ** 2 - 6.80284e-07 * h + 9.23514e-04]
-
-change_std_dev = [lambda h : 1.46347e-10 * h ** 2 - 1.06378e-06 * h + 1.06364e-02,
-                  lambda h : 5.65310e-10 * h ** 2 - 3.44977e-06 * h + 1.32486e-02]
-
-
-wind_lowerbound = [lambda h : wind_avg[0](h) - 2 * wind_std_dev[0](h),
-                   lambda h : wind_avg[1](h) - 2 * wind_std_dev[1](h)]
-
-wind_upperbound = [lambda h : wind_avg[0](h) + 2 * wind_std_dev[0](h),
-                   lambda h : wind_avg[1](h) + 2 * wind_std_dev[1](h)]
+from wind_data_analysis import *
+from plot_data import *
 
 INCREASE_RATES = [0.600752594027682, 0.5729401464205213]
 AVG_H_DIFF = 247
 
+def wind_data_functions(w_x_bounds=None, w_y_bounds=None):
+    height, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
+    w_x_avg, w_x_dev = avg_and_dev_fitter(height, w_x)[-1]
+    w_y_avg, w_y_dev = avg_and_dev_fitter(height, w_y)[-1]
+
+    height, c_x, c_y, inc_rates, avg_h_diff = change_of_wind(w_x_bounds, w_y_bounds)
+    c_x_avg, c_x_dev = avg_and_dev_fitter(height, c_x)[-1]
+    c_y_avg, c_y_dev = avg_and_dev_fitter(height, c_y)[-1]
+
+    return [[w_x_avg, w_y_avg], [w_x_dev, w_y_dev],
+        [c_x_avg, c_y_avg], [c_x_dev, c_y_dev]], \
+        inc_rates, int(np.floor(avg_h_diff))
 
 def rho(h):
     return 1.70708e-09 * h ** 2 - 9.65846e-05 * h + 1.10647e+00
 
-def wind(wind_dir='x', seed=None, max_height=4800,
-         height_stepsize=AVG_H_DIFF, plot=False):
-    if seed is not None:
-        np.random.seed(seed)
+class Wind_generator:
 
-    i = 0 if wind_dir == 'x' else 1
-    wind_heights = np.arange(0, max_height, height_stepsize)
-    wind = [0] * len(wind_heights)
+    def __init__(self, w_x_bounds=None, w_y_bounds=None):
+        funcs, a, b = wind_data_functions(w_x_bounds, w_y_bounds)
+        self.inc_rates, self.stepsize = a, b
 
-    s = np.random.normal(wind_avg[i](0), wind_std_dev[i](0))
-    while s < wind_lowerbound[i](0) or s > wind_upperbound[i](0):
-        s = np.random.normal(wind_avg[i](0), wind_std_dev[i](0))
-    wind[0] = s
+        # Define the average and standard deviation functions.
+        self.w_avg, self.w_dev = funcs[0:2]
+        self.c_avg, self.c_dev = funcs[2:]
+
+        self.w_lower = [lambda h : self.w_avg[0](h) - 2 * self.w_dev[0](h),
+                        lambda h : self.w_avg[1](h) - 2 * self.w_dev[1](h)]
+
+        self.w_upper = [lambda h : self.w_avg[0](h) + 2 * self.w_dev[0](h),
+                        lambda h : self.w_avg[1](h) + 2 * self.w_dev[1](h)]
+
+    def wind(self, seed=None, wind_dir='x'):
+        if seed is not None:
+            np.random.seed(seed)
+
+        i = 0 if wind_dir == 'x' else 1
+        wind_heights = np.arange(0, h_airplane, self.stepsize)
+        wind = [0] * len(wind_heights)
+
+        s = np.random.normal(self.w_avg[i](0), self.w_dev[i](0))
+        while s < self.w_lower[i](0) or s > self.w_upper[i](0):
+            s = np.random.normal(self.w_avg[i](0), self.w_dev[i](0))
+        wind[0] = s
 
 
-    for h in wind_heights[:-1]:
-        cur_wind = wind[int(h / height_stepsize)]
-        mu = sum(change_avg[i](np.arange(h,
-                                         h + height_stepsize)))
+        for h in wind_heights[:-1]:
+            cur_wind = wind[int(h / self.stepsize)]
+            mu = sum(self.c_avg[i](np.arange(h,
+                                            h + self.stepsize)))
 
-        sigma = sum(change_std_dev[i](x)
-                            for x in range(h, h + height_stepsize))
+            sigma = sum(self.c_dev[i](x)
+                                for x in range(h, h + self.stepsize))
 
-        increase = 1 if np.random.binomial(1, INCREASE_RATES[i]) else -1
+            increase = 1 if np.random.binomial(1, INCREASE_RATES[i]) else -1
 
-        s = increase * np.abs(np.random.normal(mu, sigma))
-        cur_wind += s if np.sign(cur_wind) == 1 else -s
-        while cur_wind < wind_lowerbound[i](0) or cur_wind > wind_upperbound[i](0):
-            cur_wind -= s if np.sign(cur_wind) == 1 else -s
             s = increase * np.abs(np.random.normal(mu, sigma))
             cur_wind += s if np.sign(cur_wind) == 1 else -s
+            while cur_wind < self.w_lower[i](0) or cur_wind > self.w_upper[i](0):
+                cur_wind -= s if np.sign(cur_wind) == 1 else -s
+                s = increase * np.abs(np.random.normal(mu, sigma))
+                cur_wind += s if np.sign(cur_wind) == 1 else -s
 
 
-        wind[int(h / height_stepsize) + 1] = cur_wind
+            wind[int(h / self.stepsize) + 1] = cur_wind
 
-    cs = CubicSpline(wind_heights, wind)
-    if plot:
-        plt.plot(np.arange(0, 4800, 10), cs(np.arange(0, 4800, 10)))
+        return CubicSpline(wind_heights, wind)
+
+    def plot_wind(self, seed=None, wind_dir='x'):
+        wind_func = self.wind(seed=seed, wind_dir=wind_dir)
+        h_vals = np.arange(0, h_airplane, 10)
+        plt.plot(h_vals, wind_func(h_vals))
         plt.xlabel(r'height (m)')
         plt.ylabel(r'$v (m/s)$')
-        plt.title(f'Wind in {wind_dir}-direction.')
+        plt.title(f'Wind in {dir}-direction.')
         plt.show()
-    return cs
-
 
 if __name__ == '__main__':
-    wind(wind_dir='x', seed=0)
+    wind = Wind_generator()
+    wind.plot_wind(wind_dir='x')
