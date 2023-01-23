@@ -1,5 +1,10 @@
 from collections import namedtuple
 
+v_airplane = 45
+h_airplane = 2500
+h_opening = 200
+radius_landing_area = 20
+
 m_diver = 83
 m_air = 4.81 * 10**(-26)
 g = 9.81

@@ -54,7 +54,7 @@ def plot(myDiver):
 
 def errors():
     # Setup variables
-    h_vals = np.arange(0.001, 0.13, 0.01)
+    h_vals = np.logspace(-3, -1, 10)
     err.simulate_error(h_vals)
 
 if __name__ == '__main__':
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     myDiver = Diver(x=np.array([0.,0.,3600.]), vel=np.array([45.,0.,0.]),
                     h_opening=200, stepsize=STEP_SIZE)
     # Run model.
-    myDiver.simulate_trajectory('Pred-corr')
+    myDiver.simulate_trajectory('RK4')
 
     if num == 1:
         visual(myDiver)
