@@ -5,7 +5,7 @@ import multiprocessing
 from diver import Diver
 import matplotlib
 
-NR_OF_SIMS = 5
+NR_OF_SIMS = 2
 H_VAL = 0.01
 
 
@@ -33,7 +33,7 @@ def find_optimal_params(dir_vals):
     pool.close()
 
     fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+    ax = fig.add_subplot(111, projection='3d')
 
     x_list, y_list, z_list, p_list = [], [], [], []
     for i in succes_probs:
@@ -44,10 +44,16 @@ def find_optimal_params(dir_vals):
         p_list.append(p)
 
     cmap = matplotlib.cm.get_cmap('RdYlGn')
-    ax.scatter(x_list, y_list, z_list, c=cmap(p_list))
-    ax.set_xlabel('x-direction')
-    ax.set_ylabel('y-direction')
-    ax.set_zlabel('z-direction')
+    plot = ax.scatter(x_list, y_list, z_list, c=p_list, cmap=plt.cm.RdYlGn)
+    ax.set_xlabel('x-position')
+    ax.set_ylabel('y-position')
+    ax.set_zlabel('approach angle')
+
+    fig.colorbar(plot, ax=ax)
+
+    # ax = fig.add_subplot()
+    # gradient = np.linspace(0, 1, 200)
+    # ax.imshow(np.vstack((gradient, gradient)), cmap=cmap)
 
     plt.show()
 
