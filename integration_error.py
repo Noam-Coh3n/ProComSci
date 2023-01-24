@@ -7,13 +7,14 @@ from wind_and_rho_generator import Wind_generator
 
 # Define parameters used for the diver and define the methods that will be
 # compared.
-h = 0.01
+h = 0.0001
 methods = ['rk4', 'euler', 'central diff', 'pred-corr']
-nr_of_seeds = 1
+nr_of_seeds = 5
 
 
 def simulate_method(params):
-    method, h_vals, y_parts, wind = params
+    method, h_vals, y_parts = params
+    wind = Wind_generator()
     sum_errors = []
     for h in h_vals:
 
@@ -39,15 +40,15 @@ def simulate_method(params):
     return sum_errors
 
 
-def simulate_control_experiment(params):
-    seed, wind = params
+def simulate_control_experiment(seed):
+    wind = Wind_generator()
     # Get diver data with stepsize equal to h.
     myDiver = Diver(x=np.array([0., 0., const.h_airplane]),
                     velocity=np.array([const.v_airplane, 0, 0]),
                     wind=wind, stepsize=h, seed=seed)
 
     # Simulate the diver with Runge-kutta order 4
-    myDiver.simulate_trajectory('RK4')
+    myDiver.simulate_trajectory('rk4')
 
     # Get the positions
     y = [x[0] for x in myDiver.x_list]
@@ -63,14 +64,14 @@ def simulate_error(h_vals):
     Runge-kutta order 4 with stepsize 0.001 (This is the good simulation).
     """
 
-    wind = Wind_generator()
-
     pool = multiprocessing.Pool()
-    y_parts = pool.map(simulate_control_experiment, enumerate([wind] * nr_of_seeds))
+    # params = list(enumerate([wind] * nr_of_seeds))
+    params = np.arange(nr_of_seeds)
+    y_parts = pool.map(simulate_control_experiment, params)
     pool.close()
 
     pool = multiprocessing.Pool()
-    sum_errors = pool.map(simulate_method, [(method, h_vals, y_parts, wind) for method in methods])
+    sum_errors = pool.map(simulate_method, [(method, h_vals, y_parts) for method in methods])
     pool.close()
 
     # Plot the sum of the error.
