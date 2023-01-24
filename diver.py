@@ -35,7 +35,7 @@ class Diver():
         self.v_list.append(np.copy(self.v))
         self.a_list.append(np.copy(self.a))
 
-    def _get_derivative(self, data: np.array):
+    def _diff(self, data: np.array):
         """ Determine speed and acceleration given the position and speed.
         """
         _, _, x_z, v_x, v_y, v_z = data
@@ -65,16 +65,16 @@ class Diver():
         [a_x, a_y, a_z] = F / const.m_diver
         return np.array([v_x, v_y, v_z, a_x, a_y, a_z])
 
-    # Integration methods.
+    # Integration methods
     def integration(self, method):
         h = self.step_size
         prev_y = np.append(self.x_list[-1], self.v_list[-1])
         y = np.append(self.x, self.v)
 
         if method == 'central diff':
-            next_y, k = integration.integrate(method, h, self._get_derivative, y, prev_y)
+            next_y, k = integration.integrate(method, h, self._diff, y, prev_y)
         else:
-            next_y, k = integration.integrate(method, h, self._get_derivative, y)
+            next_y, k = integration.integrate(method, h, self._diff, y)
 
         self.x = next_y[:3]
         self.v = next_y[3:]
@@ -87,7 +87,8 @@ class Diver():
 
     # def x2pos(self):
     #     """Get position in cube from x location in real world."""
-    #     self.pos = self.x * np.array([2, 2, -1]) + np.array([0, 0, self.x_z_0/2])
+    #     self.pos = self.x * np.array([2, 2, -1]) +
+    #  np.array([0, 0, self.x_z_0/2])
 
     def simulate_trajectory(self, method):
         while True:
