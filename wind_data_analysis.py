@@ -114,7 +114,7 @@ def retrieve_rho_and_wind(data: list, w_x_bounds, w_y_bounds) -> list:
         # print(w_x)
         # print(w_y)
         if x_low < w_x[0] and w_x[0] < x_high and \
-             y_low < w_y[0] and w_y[0] < y_high:
+           y_low < w_y[0] and w_y[0] < y_high:
             result.append(np.vstack((height, w_x, w_y, rho)))
 
     return result
@@ -190,9 +190,9 @@ def change_of_wind(w_x_bounds=None, w_y_bounds=None):
         prev_w_x = cur_w_x
         prev_w_y = cur_w_y
 
-    increase_rates = [x_increase / counter, y_increase / counter]
+    incr_rates = [x_increase / counter, y_increase / counter]
     avg_h_diff = sum(h_diffs) / len(h_diffs)
-    return new_height, rate_changes_x, rate_changes_y, increase_rates, avg_h_diff
+    return new_height, rate_changes_x, rate_changes_y, incr_rates, avg_h_diff
 
 
 if __name__ == '__main__':
@@ -202,7 +202,6 @@ if __name__ == '__main__':
         for y_res in restrictions:
             wind_data = retrieve_data_combined(x_res, y_res)
             plot_data(wind_data)
-
 
             h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind()
             # print(f'{increase_rates = }')
