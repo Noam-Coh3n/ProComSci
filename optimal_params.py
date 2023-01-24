@@ -4,6 +4,7 @@ import numpy as np
 import multiprocessing
 from diver import Diver
 import matplotlib
+from wind_and_rho_generator import *
 
 NR_OF_SIMS = 5
 H_VAL = 0.01
@@ -15,10 +16,11 @@ def simulate_params(params):
     x, y, d = params[:3]
     pos = np.array([x, y, h_airplane])
     vel = np.array([np.cos(d) * v_airplane, np.sin(d) * v_airplane, 0])
+    wind = Wind_generator((0, np.inf), (0, np.inf))
 
     nr_of_successes = 0
     for seed in params[3:]:
-        myDiver = Diver(x=pos, vel=vel, h_opening=h_opening, stepsize=H_VAL, seed=seed)
+        myDiver = Diver(x=pos, vel=vel, wind=wind, stepsize=H_VAL, seed=seed)
         myDiver.simulate_trajectory('RK4')
         x, y, _ = myDiver.x
         if x ** 2 + y ** 2 < radius_landing_area ** 2:
@@ -60,6 +62,6 @@ def find_optimal_params(x_vals, y_vals, dir_vals):
 
 if __name__ == '__main__':
     dir_vals = np.linspace(0, 2 * np.pi, NUMBER_D)
-    x_vals = np.linspace(-2000, 0, NUMBER_X)
+    x_vals = np.linspace(-1000, -500, NUMBER_X)
     y_vals = np.linspace(0, 0, NUMBER_Y)
     find_optimal_params(x_vals, y_vals, dir_vals)

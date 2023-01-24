@@ -45,7 +45,7 @@ def plot(myDiver):
     for i, (dir, func) in enumerate(zip(['x', 'y'],
                                         [myDiver.wind_x, myDiver.wind_y])):
         plt.subplot(int(f'33{i+7}'))
-        plt.plot(np.arange(0, 4800, 10), func(np.arange(0, 4800, 10)))
+        plt.plot(np.arange(0, h_airplane, 10), func(np.arange(0, h_airplane, 10)))
         plt.xlabel(r'height (m)')
         plt.ylabel(r'$v (m/s)$')
         plt.title(f'Wind in {dir}-direction.')
