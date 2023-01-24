@@ -9,7 +9,7 @@ from wind_and_rho_generator import Wind_generator
 # compared.
 h = 0.0001
 methods = ['rk4', 'euler', 'central diff', 'pred-corr']
-nr_of_seeds = 5
+nr_of_seeds = 2
 
 
 def simulate_method(params):
@@ -21,8 +21,8 @@ def simulate_method(params):
         total_error = 0
         for seed, y_part in enumerate(y_parts):
             # Add a diver.
-            myDiver = Diver(x=np.array([0., 0., const.h_airplane]),
-                            velocity=np.array([const.v_airplane, 0., 0.]),
+            myDiver = Diver(x=np.array([0., 0., const.h_plane]),
+                            velocity=np.array([const.v_plane, 0., 0.]),
                             wind=wind, stepsize=h, seed=seed)
             # Run model with the different models and stepsizes.
             myDiver.simulate_trajectory(method)
@@ -43,8 +43,8 @@ def simulate_method(params):
 def simulate_control_experiment(seed):
     wind = Wind_generator()
     # Get diver data with stepsize equal to h.
-    myDiver = Diver(x=np.array([0., 0., const.h_airplane]),
-                    velocity=np.array([const.v_airplane, 0, 0]),
+    myDiver = Diver(x=np.array([0., 0., const.h_plane]),
+                    velocity=np.array([const.v_plane, 0, 0]),
                     wind=wind, stepsize=h, seed=seed)
 
     # Simulate the diver with Runge-kutta order 4
