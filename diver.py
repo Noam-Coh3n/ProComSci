@@ -21,7 +21,7 @@ class Diver():
         self.v_list = []
         self.a_list = []
 
-        self.x_z_0 = self.x[2]
+        # self.x_z_0 = self.x[2]
         # self.chute_pos = 0
 
         # self.x2pos()
