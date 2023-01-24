@@ -4,10 +4,6 @@ from scipy.interpolate import CubicSpline
 from wind_data_analysis import *
 from plot_data import *
 
-INCREASE_RATES = [0.600752594027682, 0.5729401464205213]
-AVG_H_DIFF = 247
-
-
 def wind_data_functions(w_x_bounds=None, w_y_bounds=None):
     height, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
     w_x_avg, w_x_dev = avg_and_dev_fitter(height, w_x)[-1]
@@ -63,7 +59,7 @@ class Wind_generator:
             sigma = sum(self.c_dev[i](x)
                         for x in range(h, h + self.stepsize))
 
-            increase = 1 if np.random.binomial(1, INCREASE_RATES[i]) else -1
+            increase = 1 if np.random.binomial(1, self.inc_rates[i]) else -1
 
             s = increase * np.abs(np.random.normal(mu, sigma))
             cur_wind += s if np.sign(cur_wind) == 1 else -s
@@ -88,5 +84,5 @@ class Wind_generator:
 
 
 if __name__ == '__main__':
-    wind = Wind_generator()
+    wind = Wind_generator((-np.inf, -2), (2, np.inf))
     wind.plot_wind(wind_dir='x')
