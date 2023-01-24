@@ -13,7 +13,8 @@ def wind_data_functions(w_x_bounds=None, w_y_bounds=None):
     w_x_avg, w_x_dev = avg_and_dev_fitter(height, w_x)[-1]
     w_y_avg, w_y_dev = avg_and_dev_fitter(height, w_y)[-1]
 
-    height, c_x, c_y, inc_rates, avg_h_diff = change_of_wind(w_x_bounds, w_y_bounds)
+    height, c_x, c_y, inc_rates, avg_h_diff = change_of_wind(w_x_bounds,
+                                                             w_y_bounds)
     c_x_avg, c_x_dev = avg_and_dev_fitter(height, c_x)[-1]
     c_y_avg, c_y_dev = avg_and_dev_fitter(height, c_y)[-1]
 
@@ -66,11 +67,11 @@ class Wind_generator:
 
             s = increase * np.abs(np.random.normal(mu, sigma))
             cur_wind += s if np.sign(cur_wind) == 1 else -s
-            while cur_wind < self.w_lower[i](0) or cur_wind > self.w_upper[i](0):
+            while (cur_wind < self.w_lower[i](0) or
+                   cur_wind > self.w_upper[i](0)):
                 cur_wind -= s if np.sign(cur_wind) == 1 else -s
                 s = increase * np.abs(np.random.normal(mu, sigma))
                 cur_wind += s if np.sign(cur_wind) == 1 else -s
-
 
             wind[int(h / self.stepsize) + 1] = cur_wind
 
