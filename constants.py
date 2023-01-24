@@ -1,7 +1,7 @@
 from collections import namedtuple
 
-v_airplane = 45
-h_airplane = 2500
+v_plane = 45
+h_plane = 2500
 h_opening = 200
 radius_landing_area = 200
 

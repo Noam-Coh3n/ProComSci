@@ -47,7 +47,8 @@ def plot(myDiver):
     for i, (dir, func) in enumerate(zip(['x', 'y'],
                                         [myDiver.wind_x, myDiver.wind_y])):
         plt.subplot(int(f'33{i+7}'))
-        plt.plot(np.arange(0, const.h_airplane, 10), func(np.arange(0, const.h_airplane, 10)))
+        plt.plot(np.arange(0, const.h_plane, 10),
+                 func(np.arange(0, const.h_plane, 10)))
         plt.xlabel(r'height (m)')
         plt.ylabel(r'$v (m/s)$')
         plt.title(f'Wind in {dir}-direction.')
@@ -63,7 +64,7 @@ def errors():
 
 
 if __name__ == '__main__':
-    num = int(input('Press 1 for visual, press 2 for plot, press 3 for errors plot: '))
+    num = int(input('Press 1 for visual, 2 for plot, 3 for errors plot: '))
 
     while num not in [1, 2, 3]:
         num = int(input('Please press 1, 2 or 3: '))
@@ -72,8 +73,8 @@ if __name__ == '__main__':
     wind = Wind_generator()
 
     # Add a diver.
-    myDiver = Diver(x=np.array([0., 0., const.h_airplane]),
-                    velocity=np.array([const.v_airplane, 0., 0.]),
+    myDiver = Diver(x=np.array([0., 0., const.h_plane]),
+                    velocity=np.array([const.v_plane, 0., 0.]),
                     wind=wind, stepsize=STEP_SIZE)
     # Run model.
     myDiver.simulate_trajectory('rk4')
