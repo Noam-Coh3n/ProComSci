@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
-from wind_data_analysis import *
-from plot_data import *
+import constants as const
+from wind_data_analysis import change_of_wind, retrieve_data_combined
+from plot_data import avg_and_dev_fitter
+
 
 def wind_data_functions(w_x_bounds=None, w_y_bounds=None):
     h, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
@@ -43,7 +45,7 @@ class Wind_generator:
             np.random.seed(seed)
 
         i = 0 if wind_dir == 'x' else 1
-        wind_heights = np.arange(0, h_plane, self.stepsize)
+        wind_heights = np.arange(0, const.h_plane, self.stepsize)
         wind = [0] * len(wind_heights)
 
         s = np.random.normal(self.w_avg[i](0), self.w_dev[i](0))
@@ -73,7 +75,7 @@ class Wind_generator:
 
     def plot_wind(self, seed=None, wind_dir='x'):
         wind_func = self.wind(seed=seed, wind_dir=wind_dir)
-        h_vals = np.arange(0, h_plane, 10)
+        h_vals = np.arange(0, const.h_plane, 10)
         plt.plot(h_vals, wind_func(h_vals))
         plt.xlabel(r'h (m)')
         plt.ylabel(r'$v (m/s)$')
