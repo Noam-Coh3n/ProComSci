@@ -27,8 +27,8 @@ def _central_diff(h, deriv, y, prev_y):
     return next_y, k
 
 
-INT_METHOD = {'Euler': _euler, 'RK4': _runge_kutta, 'Pred-corr': _pred_correct,
-              'Central diff': _central_diff}
+INT_METHOD = {'euler': _euler, 'rk4': _runge_kutta, 'pred-corr': _pred_correct,
+              'central diff': _central_diff}
 
 
 def integrate(method, h, deriv, *y_vals):

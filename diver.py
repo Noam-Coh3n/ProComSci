@@ -71,7 +71,7 @@ class Diver():
         prev_y = np.append(self.x_list[-1], self.v_list[-1])
         y = np.append(self.x, self.v)
 
-        if method == 'Central diff':
+        if method == 'central diff':
             next_y, k = integration.integrate(method, h, self._get_derivative, y, prev_y)
         else:
             next_y, k = integration.integrate(method, h, self._get_derivative, y)

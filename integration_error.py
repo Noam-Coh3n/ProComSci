@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import multiprocessing
 
 # Define parameters used for the diver and define the methods that will be
-# comperd.
+# compared.
 h = 0.0001
-methods = ['RK4', 'Euler', 'Central diff', 'Pred-corr']
+methods = ['rk4', 'euler', 'central diff', 'pred-corr']
 
 
 def simulate_method(params):

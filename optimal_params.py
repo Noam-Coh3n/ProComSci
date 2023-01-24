@@ -14,12 +14,12 @@ NUMBER_D = 1
 def simulate_params(params):
     x, y, d = params[:3]
     pos = np.array([x, y, h_airplane])
-    vel = np.array([np.cos(d) * v_airplane, np.sin(d) * v_airplane, 0])
+    v = np.array([np.cos(d) * v_airplane, np.sin(d) * v_airplane, 0])
 
     nr_of_successes = 0
     for seed in params[3:]:
-        myDiver = Diver(x=pos, vel=vel, h_opening=h_opening, stepsize=H_VAL, seed=seed)
-        myDiver.simulate_trajectory('RK4')
+        myDiver = Diver(x=pos, velocity=v, stepsize=H_VAL, seed=seed)
+        myDiver.simulate_trajectory('rk4')
         x, y, _ = myDiver.x
         if x ** 2 + y ** 2 < radius_landing_area ** 2:
             nr_of_successes += 1
