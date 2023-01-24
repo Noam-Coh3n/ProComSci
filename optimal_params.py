@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import multiprocessing
 from diver import Diver
-import matplotlib
-from wind_and_rho_generator import *
+from wind_and_rho_generator import Wind_generator
 
 NR_OF_SIMS = 5
 H_VAL = 0.01
@@ -12,15 +11,16 @@ NUMBER_X = 8
 NUMBER_Y = 1
 NUMBER_D = 1
 
+
 def simulate_params(params):
     x, y, d = params[:3]
-    pos = np.array([x, y, const.h_airplane])
-    v = np.array([np.cos(d) * const.v_airplane, np.sin(d) * const.v_airplane, 0])
+    pos = np.array([x, y, const.h_plane])
+    v = np.array([np.cos(d) * const.v_plane, np.sin(d) * const.v_plane, 0])
     wind = Wind_generator((0, np.inf), (0, np.inf))
 
     nr_of_successes = 0
     for seed in params[3:]:
-        myDiver = Diver(x=pos, velocity=v, wind=wind, stepsize=H_VAL, seed=seed)
+        myDiver = Diver(pos, v, wind, H_VAL, seed)
         myDiver.simulate_trajectory('rk4')
         x, y, _ = myDiver.x
         if x ** 2 + y ** 2 < const.radius_landing_area ** 2:
@@ -50,7 +50,8 @@ def find_optimal_params(x_vals, y_vals, dir_vals):
         z_list.append(d)
         p_list.append(p)
 
-    plot = ax.scatter(x_list, y_list, z_list, c=p_list, cmap=plt.cm.RdYlGn, vmin = 0, vmax = 1)
+    plot = ax.scatter(x_list, y_list, z_list, c=p_list, cmap=plt.cm.RdYlGn,
+                      vmin=0, vmax=1)
     ax.set_xlabel('x-position')
     ax.set_ylabel('y-position')
     ax.set_zlabel('approach angle')
