@@ -32,7 +32,7 @@ FPS = 128
 BACKGROUND_COLOR = black
 
 SCREEN_SIZE = 1000
-DROP_HEIGHT = 3600
+DROP_HEIGHT = 2500
 PARAMETER_SIZE = 5000
 
 # -----------------------------  Variables -------------------------------------

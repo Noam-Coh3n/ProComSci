@@ -6,9 +6,9 @@ import constants as const
 from wind_and_rho_generator import Wind_generator
 
 # Define parameters used for the diver and define the methods that will be
-# comperd.
+# compared.
 h = 0.01
-methods = ['RK4', 'Euler', 'Central diff', 'Pred-corr']
+methods = ['rk4', 'euler', 'central diff', 'pred-corr']
 nr_of_seeds = 1
 
 

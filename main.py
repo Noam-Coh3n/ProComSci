@@ -2,10 +2,11 @@ import numpy as np
 from diver import Diver
 import matplotlib.pyplot as plt
 import integration_error as err
-from wind_and_rho_generator import *
-from constants import *
+from wind_and_rho_generator import Wind_generator
+import constants as const
 
 STEP_SIZE = 0.005
+
 
 def visual(myDiver):
     from visual import Visual
@@ -13,6 +14,7 @@ def visual(myDiver):
     myVisual.add_diver(myDiver)
     myVisual.select_line_interval(300)
     myVisual.run(slowed=10)
+
 
 def plot(myDiver):
     plt.figure(figsize=(16, 10), dpi=100)
@@ -45,19 +47,20 @@ def plot(myDiver):
     for i, (dir, func) in enumerate(zip(['x', 'y'],
                                         [myDiver.wind_x, myDiver.wind_y])):
         plt.subplot(int(f'33{i+7}'))
-        plt.plot(np.arange(0, 4800, 10), func(np.arange(0, 4800, 10)))
+        plt.plot(np.arange(0, const.h_airplane, 10), func(np.arange(0, const.h_airplane, 10)))
         plt.xlabel(r'height (m)')
         plt.ylabel(r'$v (m/s)$')
         plt.title(f'Wind in {dir}-direction.')
 
-
     plt.tight_layout()
     plt.show()
+
 
 def errors():
     # Setup variables
     h_vals = np.logspace(-3, -1, 10)
     err.simulate_error(h_vals)
+
 
 if __name__ == '__main__':
     num = int(input('Press 1 for visual, press 2 for plot, press 3 for errors plot: '))
@@ -69,10 +72,11 @@ if __name__ == '__main__':
     wind = Wind_generator()
 
     # Add a diver.
-    myDiver = Diver(x=np.array([0.,0.,h_airplane]), vel=np.array([v_airplane,0.,0.]),
+    myDiver = Diver(x=np.array([0., 0., const.h_airplane]),
+                    velocity=np.array([const.v_airplane, 0., 0.]),
                     wind=wind, stepsize=STEP_SIZE)
     # Run model.
-    myDiver.simulate_trajectory('RK4')
+    myDiver.simulate_trajectory('rk4')
 
     if num == 1:
         visual(myDiver)
@@ -80,5 +84,3 @@ if __name__ == '__main__':
         plot(myDiver)
     else:
         errors()
-
-    # Pyplot en Pygame kunnen niet tegenlijkertijd, dan krijg je een error.
