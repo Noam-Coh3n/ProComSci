@@ -1,21 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
-from wind_data_analysis import *
-from plot_data import *
+from wind_data_analysis import retrieve_data_combined, change_of_wind
+from plot_data import avg_and_dev_fitter
 
 INCREASE_RATES = [0.600752594027682, 0.5729401464205213]
 AVG_H_DIFF = 247
 
 
 def wind_data_functions(w_x_bounds=None, w_y_bounds=None):
-    height, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
-    w_x_avg, w_x_dev = avg_and_dev_fitter(height, w_x)[-1]
-    w_y_avg, w_y_dev = avg_and_dev_fitter(height, w_y)[-1]
+    h, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
+    w_x_avg, w_x_dev = avg_and_dev_fitter(h, w_x)[-1]
+    w_y_avg, w_y_dev = avg_and_dev_fitter(h, w_y)[-1]
 
-    height, c_x, c_y, inc_rates, avg_h_diff = change_of_wind(w_x_bounds, w_y_bounds)
-    c_x_avg, c_x_dev = avg_and_dev_fitter(height, c_x)[-1]
-    c_y_avg, c_y_dev = avg_and_dev_fitter(height, c_y)[-1]
+    h, c_x, c_y, inc_rates, avg_h_diff = change_of_wind(w_x_bounds, w_y_bounds)
+    c_x_avg, c_x_dev = avg_and_dev_fitter(h, c_x)[-1]
+    c_y_avg, c_y_dev = avg_and_dev_fitter(h, c_y)[-1]
 
     return [[w_x_avg, w_y_avg], [w_x_dev, w_y_dev],
             [c_x_avg, c_y_avg], [c_x_dev, c_y_dev]], \
@@ -66,11 +66,10 @@ class Wind_generator:
 
             s = increase * np.abs(np.random.normal(mu, sigma))
             cur_wind += s if np.sign(cur_wind) == 1 else -s
-            while cur_wind < self.w_lower[i](0) or cur_wind > self.w_upper[i](0):
+            while not (self.w_lower[i](0) <= cur_wind <= self.w_upper[i](0)):
                 cur_wind -= s if np.sign(cur_wind) == 1 else -s
                 s = increase * np.abs(np.random.normal(mu, sigma))
                 cur_wind += s if np.sign(cur_wind) == 1 else -s
-
 
             wind[int(h / self.stepsize) + 1] = cur_wind
 
@@ -80,7 +79,7 @@ class Wind_generator:
         wind_func = self.wind(seed=seed, wind_dir=wind_dir)
         h_vals = np.arange(0, h_plane, 10)
         plt.plot(h_vals, wind_func(h_vals))
-        plt.xlabel(r'height (m)')
+        plt.xlabel(r'h (m)')
         plt.ylabel(r'$v (m/s)$')
         plt.title(f'Wind in {dir}-direction.')
         plt.show()
