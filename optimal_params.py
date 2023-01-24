@@ -21,7 +21,7 @@ def simulate_params(params):
     nr_of_successes = 0
     for seed in params[3:]:
         myDiver = Diver(x=pos, velocity=v, wind=wind, stepsize=H_VAL, seed=seed)
-        myDiver.simulate_trajectory('RK4')
+        myDiver.simulate_trajectory('rk4')
         x, y, _ = myDiver.x
         if x ** 2 + y ** 2 < radius_landing_area ** 2:
             nr_of_successes += 1
