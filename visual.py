@@ -2,6 +2,8 @@ import time
 import random
 import numpy as np
 import pygame
+import help_visual as hp
+import constants as const
 pygame.init()
 
 # ------------------------------- Color ----------------------------------------
@@ -294,7 +296,7 @@ class Visual:
         self.diver = diver
 
         nr_of_arrows = 10
-        heights = np.linspace(0, diver.x_z_0, nr_of_arrows * 2 + 1)
+        heights = np.linspace(0, DROP_HEIGHT, nr_of_arrows * 2 + 1)
         heights = heights[1::2]
 
         wind = np.array(list(zip(diver.wind_x(heights), diver.wind_y(heights))))
@@ -307,7 +309,7 @@ class Visual:
         self.world.add_object(Line())
 
     def select_line_interval(self, interval: int):
-        self.traject = [pos for c, pos in enumerate(self.diver.pos_list) if c % interval == 0]
+        self.traject = [pos for c, pos in enumerate(hp.x2pos(self.diver.x_list)) if c % interval == 0]
 
     def _draw_screen(self):
         game_display.fill(BACKGROUND_COLOR)
@@ -324,7 +326,7 @@ class Visual:
                 self.frame += 1
 
             # Show phase points.
-            if self.traject[self.frame][2] > self.diver.chute_pos and not self.drawn2:
+            if self.traject[self.frame][2] > (DROP_HEIGHT/2 - const.h_opening) and not self.drawn2:
                 self.world.add_object(Ball(self.traject[self.frame], yellow, 4))
                 self.drawn2 = True
 

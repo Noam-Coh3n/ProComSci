@@ -58,8 +58,7 @@ def simulate_control_experiment(seed):
 
 
 def simulate_error(h_vals):
-    """
-    Simulate the error of the methods Runge-kutta order 4, Euler, Central
+    """Simulate the error of the methods Runge-kutta order 4, Euler, Central
     difference and Predictor-corrector. All the methods will be compared to the
     Runge-kutta order 4 with stepsize 0.001 (This is the good simulation).
     """
