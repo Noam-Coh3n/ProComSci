@@ -74,19 +74,13 @@ def remove_data_above_height(max_height: int) -> None:
             new_data_file.write(line_data)
 
 
-def retrieve_rho_and_wind(data: list, w_x_bounds, w_y_bounds) -> list:
+def retrieve_rho_and_wind(data: list, w_x_bounds: tuple,
+                          w_y_bounds: tuple) -> list:
     """Returns the height, air density (rho) and wind data when being given
     the height, pressure, temperature and wind data.
     """
     (x_low, x_high) = w_x_bounds if w_x_bounds else (-np.inf, np.inf)
     (y_low, y_high) = w_y_bounds if w_y_bounds else (-np.inf, np.inf)
-
-    # print(w_x_bounds)
-    # print(w_y_bounds)
-    # x_low, x_high = w_x_bounds
-    # y_low, y_high = w_y_bounds
-    # print(x_low, x_high, y_low, y_high)
-    # print(data)
 
     result = []
     for data_item in data:
@@ -102,11 +96,9 @@ def retrieve_rho_and_wind(data: list, w_x_bounds, w_y_bounds) -> list:
         rho = density(press, temp / 10 + 273)
         radials = dir * 2 * np.pi / 360  # Convert deg to radials.
 
-        # Wind.
+        # Calculate the wind speed and add to the result list.
         w_x = np.sin(radials) * vel / 10
         w_y = np.cos(radials) * vel / 10
-        # print(w_x)
-        # print(w_y)
         if x_low < w_x[0] and w_x[0] < x_high and \
            y_low < w_y[0] and w_y[0] < y_high:
             result.append(np.vstack((height, w_x, w_y, rho)))
@@ -114,7 +106,9 @@ def retrieve_rho_and_wind(data: list, w_x_bounds, w_y_bounds) -> list:
     return result
 
 
-def retrieve_data_separate(w_x_bounds=None, w_y_bounds=None):
+def retrieve_data_separate(w_x_bounds: tuple = None,
+                           w_y_bounds: tuple = None) -> list:
+    """Return a list where each item corresponds with one weather balloon."""
     result_data = []
     raw_data = str(open('wind_data.txt', 'r').read())
 
@@ -125,11 +119,9 @@ def retrieve_data_separate(w_x_bounds=None, w_y_bounds=None):
     return result_data
 
 
-def retrieve_data_combined(w_x_bounds=None, w_y_bounds=None) -> list:
-    """
-    Returns the air density (rho) and wind data of the specified dates.
-    """
-
+def retrieve_data_combined(w_x_bounds: tuple = None,
+                           w_y_bounds: tuple = None) -> list:
+    """Returns the air density (rho) and wind data of the specified dates."""
     separate_data = retrieve_data_separate(w_x_bounds, w_y_bounds)
 
     # Combines all the data to get 4 lists: height, rho, w_x, w_y.
@@ -141,14 +133,19 @@ def retrieve_data_combined(w_x_bounds=None, w_y_bounds=None) -> list:
 
 
 def all_dates() -> list:
-    """
-    Return list of all dates from 2018 to 2023.
-    """
+    """Return list of all dates from 2018 to 2023."""
     return [(y, m, d) for y in range(2018, 2023)
             for m in range(1, 13) for d in range(1, 32)]
 
 
-def change_of_wind(w_x_bounds=None, w_y_bounds=None):
+def change_of_wind(w_x_bounds: tuple = None, w_y_bounds: tuple = None) -> list:
+    """Return a list with the following information:
+    - the height,
+    - changes of wind speed in the x- and y-direction,
+    - the increase rates (the probability that the abolute value of the wind
+    velocity increases),
+    - the average difference of height between measurements.
+    """
     height, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
 
     rate_changes_x = []
@@ -161,7 +158,9 @@ def change_of_wind(w_x_bounds=None, w_y_bounds=None):
     y_increase = 0
     counter = 0
 
+    # Iterate over all measurements.
     for cur_height, cur_w_x, cur_w_y in zip(height, w_x, w_y):
+        # The beginning of weather balloon measurements.
         if cur_height == 0:
             prev_height = cur_height
             prev_w_x = cur_w_x
@@ -170,12 +169,14 @@ def change_of_wind(w_x_bounds=None, w_y_bounds=None):
         h_diff = cur_height - prev_height
         h_diffs.append(h_diff)
 
+        # Append the average change in wind speed per meter.
         rate_changes_x.append((cur_w_x - prev_w_x) / h_diff)
         rate_changes_y.append((cur_w_y - prev_w_y) / h_diff)
 
         avg_height = int(np.floor((prev_height + cur_height) / 2))
         new_height.append(avg_height)
 
+        # Calculate whether the absolute value of the wind speed increased.
         x_increase += 1 if np.abs(prev_w_x) < np.abs(cur_w_x) else 0
         y_increase += 1 if np.abs(prev_w_y) < np.abs(cur_w_y) else 0
         counter += 1

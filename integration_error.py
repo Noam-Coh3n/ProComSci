@@ -21,21 +21,23 @@ def simulate_method(params):
         total_error = 0
         for seed, y_part in enumerate(y_parts):
             # Add a diver.
-            myDiver = Diver(x=np.array([0., 0., const.h_airplane]),
-                            velocity=np.array([const.v_airplane, 0., 0.]),
+            myDiver = Diver(x=np.array([0., 0., const.h_plane]),
+                            velocity=np.array([const.v_plane, 0., 0.]),
                             wind=wind, stepsize=h, seed=seed)
             # Run model with the different models and stepsizes.
             myDiver.simulate_trajectory(method)
 
             # Store the data.
-            y_n = [x[0] for x in myDiver.x_list]
-            step = len(myDiver.x_list) / 1000
+            # y_n = [x[0] for x in myDiver.x_list]
+            # step = len(myDiver.x_list) / 1000
 
             # Determine the error and take the sum
-            y_n_part = [y_n[int(np.floor(l))]
-                        for l in np.arange(0, len(y_n), step)
-                        if int(np.floor(l)) != len(y_n)]
-            total_error += sum(np.abs(np.array(y_part) - np.array(y_n_part)))
+            # y_n_part = [y_n[int(np.floor(l))]
+            #             for l in np.arange(0, len(y_n), step)
+            #             if int(np.floor(l)) != len(y_n)]
+            y_n_part = myDiver.x_list[-1][:2]
+            # total_error += sum(np.abs(np.array(y_part) - np.array(y_n_part)))
+            total_error += np.linalg.norm(np.array(y_part) - np.array(y_n_part))
         sum_errors.append(total_error / len(y_parts))
     return sum_errors
 
@@ -43,23 +45,23 @@ def simulate_method(params):
 def simulate_control_experiment(seed):
     wind = Wind_generator()
     # Get diver data with stepsize equal to h.
-    myDiver = Diver(x=np.array([0., 0., const.h_airplane]),
-                    velocity=np.array([const.v_airplane, 0, 0]),
+    myDiver = Diver(x=np.array([0., 0., const.h_plane]),
+                    velocity=np.array([const.v_plane, 0, 0]),
                     wind=wind, stepsize=h, seed=seed)
 
     # Simulate the diver with Runge-kutta order 4
     myDiver.simulate_trajectory('rk4')
 
     # Get the positions
-    y = [x[0] for x in myDiver.x_list]
-    step_size = len(myDiver.x_list) / 1000
-    return [y[int(np.floor(i))] for i in np.arange(0, len(y), step_size)
-            if int(np.floor(i)) != len(y)]
+    # y = [x[0] for x in myDiver.x_list]
+    # step_size = len(myDiver.x_list) / 1000
+    # return [y[int(np.floor(i))] for i in np.arange(0, len(y), step_size)
+            # if int(np.floor(i)) != len(y)]
+    return myDiver.x_list[-1][:2]
 
 
 def simulate_error(h_vals):
-    """
-    Simulate the error of the methods Runge-kutta order 4, Euler, Central
+    """Simulate the error of the methods Runge-kutta order 4, Euler, Central
     difference and Predictor-corrector. All the methods will be compared to the
     Runge-kutta order 4 with stepsize 0.001 (This is the good simulation).
     """
@@ -75,13 +77,14 @@ def simulate_error(h_vals):
     pool.close()
 
     # Plot the sum of the error.
-    plt.figure("Error methods.")
+    plt.figure("Error methods")
     for method, sum_error in zip(methods, sum_errors):
         plt.plot(h_vals, sum_error,label=method)
     plt.legend()
     plt.yscale("log")
     plt.xscale("log")
     plt.xlabel("Step size")
-    plt.ylabel("Sum of error")
+    plt.ylabel("Global error")
+    plt.title("Integration error of different methods")
     plt.show()
 

@@ -69,16 +69,16 @@ if __name__ == '__main__':
     while num not in [1, 2, 3]:
         num = int(input('Please press 1, 2 or 3: '))
 
-    # Initialize a wind_generator.
-    wind = Wind_generator()
+    if num in [1, 2]:
+        # Initialize a wind_generator.
+        wind = Wind_generator()
 
-    # Add a diver.
-    myDiver = Diver(x=np.array([0., 0., const.h_plane]),
-                    velocity=np.array([const.v_plane, 0., 0.]),
-                    wind=wind, stepsize=STEP_SIZE)
-    # Run model.
-    myDiver.simulate_trajectory('rk4')
-
+        # Add a diver.
+        myDiver = Diver(x=np.array([0., 0., const.h_plane]),
+                        velocity=np.array([const.v_plane, 0., 0.]),
+                        wind=wind, stepsize=STEP_SIZE)
+        # Run model.
+        myDiver.simulate_trajectory('rk4')
     if num == 1:
         visual(myDiver)
     elif num == 2:
