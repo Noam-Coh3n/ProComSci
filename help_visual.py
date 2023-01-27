@@ -1,5 +1,3 @@
-from diver import Diver
-import constants as const
 import numpy as np
 
 def x2pos(x_list):
