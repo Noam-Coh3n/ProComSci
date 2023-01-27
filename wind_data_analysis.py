@@ -14,7 +14,6 @@
 #   to a quadratic polynomial.
 
 import numpy as np
-import matplotlib.pyplot as plt
 from os import path
 import re
 
@@ -26,15 +25,12 @@ CORRUPT_VALUES = {-8888, -9999}
 
 
 def density(pressure: float, temperature: float) -> float:
-    """
-    Calculates the air density from the air pressure and temperature.
-    """
+    """Calculates the air density from the air pressure and temperature."""
     return (pressure * m_air) / (kB * temperature)
 
 
 def clean_up_data_line(line: str) -> tuple:
-    """
-    Given a line of data from a dataset, this function
+    """Given a line of data from a dataset, this function
     returns the height and a string containing the height, pressure,
     temperature winddirection and windvelocity seperated by a space.
     """
@@ -52,8 +48,7 @@ def clean_up_data_line(line: str) -> tuple:
 
 
 def remove_data_above_height(max_height: int) -> None:
-    """
-    Removes all lines of data from the Las Vegas wind data set that
+    """Removes all lines of data from the Las Vegas wind data set that
     are measured at a height above the max_height.
     """
 
@@ -80,8 +75,7 @@ def remove_data_above_height(max_height: int) -> None:
 
 
 def retrieve_rho_and_wind(data: list, w_x_bounds, w_y_bounds) -> list:
-    """
-    Returns the height, air density (rho) and wind data when being given
+    """Returns the height, air density (rho) and wind data when being given
     the height, pressure, temperature and wind data.
     """
     (x_low, x_high) = w_x_bounds if w_x_bounds else (-np.inf, np.inf)
