@@ -20,8 +20,8 @@ def simulate_params(params):
 
     nr_of_successes = 0
     for seed in params[3:]:
-        myDiver = Diver(pos, v, wind, H_VAL, seed)
-        myDiver.simulate_trajectory('rk4')
+        myDiver = Diver(pos, v, wind, H_VAL, seed=seed)
+        myDiver.simulate_trajectory()
         x, y, _ = myDiver.x
         if x ** 2 + y ** 2 < const.radius_landing_area ** 2:
             nr_of_successes += 1

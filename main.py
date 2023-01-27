@@ -74,11 +74,12 @@ if __name__ == '__main__':
         wind = Wind_generator()
 
         # Add a diver.
-        myDiver = Diver(x=np.array([0., 0., const.h_plane]),
-                        velocity=np.array([const.v_plane, 0., 0.]),
-                        wind=wind, stepsize=STEP_SIZE)
+        x = np.array([0., 0., const.h_plane])
+        velocity = np.array([const.v_plane, 0., 0.]),
+        myDiver = Diver(x, velocity, wind, STEP_SIZE)
+
         # Run model.
-        myDiver.simulate_trajectory('rk4')
+        myDiver.simulate_trajectory()
     if num == 1:
         visual(myDiver)
     elif num == 2:

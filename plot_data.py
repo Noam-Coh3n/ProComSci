@@ -9,7 +9,6 @@
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import numpy as np
-from constants import *
 
 # Define colors for the plots.
 COLOR_AVG = '#319600'
@@ -20,16 +19,11 @@ COLOR_DATASET = '#02006b'
 
 
 def fit_func(x: float, a: float, b: float, c: float) -> float:
-    """
-    Quadratic function.
-    """
-    return a * x ** 2 + b * x + c
+    return a * x**2 + b * x + c
 
 
 def plot_data(data, data_variable=['wind', 'rho']):
-    """
-    Fit and plot the data.
-    """
+    """Fits the data with a quadratic function and generates a plot."""
 
     ylabels = [r'$v (m/s)$', r'$v (m/s)$', r'$\rho (kg / m^3)$']
     title_list = []
@@ -54,6 +48,7 @@ def plot_data(data, data_variable=['wind', 'rho']):
     plt.tight_layout()
     plt.show()
 
+
 def avg_and_dev_fitter(x_vals, y_vals):
     stepsize = 50
     reg_x_vals = np.arange(min(x_vals), max(x_vals), stepsize)
@@ -69,22 +64,21 @@ def avg_and_dev_fitter(x_vals, y_vals):
     # Calculate the average and standard deviation.
     avg = [sum(y for (_, y) in bin) / len(bin) if bin else 0 for bin in bins]
     dev = [np.sqrt(sum((y - avg[i])**2 for (_, y) in bin) / (len(bin) - 1))
-               if len(bin) >= 2 else 0 for i, bin in enumerate(bins)]
+           if len(bin) >= 2 else 0 for i, bin in enumerate(bins)]
 
     # Fit the average and standard deviation using a quadratic polynomial.
     params_avg, _ = curve_fit(fit_func, reg_x_vals, avg)
     params_dev, _ = curve_fit(fit_func, reg_x_vals, dev)
 
-    avg_fitter = lambda h : fit_func(h, *params_avg)
-    dev_fitter = lambda h : fit_func(h, *params_dev)
+    avg_fitter = lambda h: fit_func(h, *params_avg)
+    dev_fitter = lambda h: fit_func(h, *params_dev)
 
     return reg_x_vals, avg, dev, (avg_fitter, dev_fitter)
 
 
 def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
                  ylabel: str = '', title: str = '') -> None:
-    """
-    This function does the following:
+    """This function does the following:
     - Plot the given data as a scatter plot.
     - Plot the average value and standard deviation at every point.
     - Plot the average value fitted to a quadratic polynomial.
@@ -121,6 +115,3 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.legend()
-
-
-
