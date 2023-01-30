@@ -4,15 +4,10 @@ import numpy as np
 import multiprocessing
 from diver import Diver
 from wind_and_rho_generator import Wind_generator
+from scipy.optimize import curve_fit
 
 NR_OF_SIMS = 5
 H_VAL = 0.05
-# NUMBER_X = 3
-# NUMBER_Y = 3
-# NUMBER_D = 1
-
-# W_X_BOUNDS = (-np.inf, -2)
-# W_Y_BOUNDS = (-np.inf, -2)
 
 
 def simulate_params(params):
@@ -30,13 +25,68 @@ def simulate_params(params):
     return params[:5] + landing_locations
 
 def find_optimal_params(params):
-    d, w_x_bounds, w_y_bounds = params
-    params = [0, 0, d, w_x_bounds, w_y_bounds, *range(50)]
+    d, w_x_bounds, w_y_bounds, h_opening = params
+    params = [0, 0, d, w_x_bounds, w_y_bounds, h_opening, *range(10)]
     locations = simulate_params(params)[5:]
-    avg = sum(np.array(locations)) / len(locations)
-    dev = np.sqrt(sum((loc - avg) ** 2 / (len(locations) - 1)
-                      for loc in locations))
-    return avg, dev
+    avg_x, avg_y = sum(np.array(locations)) / len(locations)
+    avg_distance = sum(np.sqrt((x - avg_x) ** 2 + (y - avg_y) ** 2)
+                    for x, y in locations) / len(locations)
+    return avg_distance
+
+def fit_func(X, a, b, c, d):
+    # print(list(X))
+    h, v = X
+    # print(v)
+    # print(h)
+    # print()
+    return a * v * h + b * h + c * v + d
+
+def chute_opening_plot():
+    h_opening_vals = np.linspace(150, 450, 50)
+    v_vals = []
+    dist_vals = []
+    seeds = np.arange(len(h_opening_vals))
+
+    pool = multiprocessing.Pool()
+    results = pool.map(chute_opening_simulation, zip(h_opening_vals, seeds))
+    pool.close()
+
+    for v, dist in results:
+        v_vals.append(v)
+        dist_vals.append(dist)
+
+    params, _, = curve_fit(fit_func, (h_opening_vals, v_vals), dist_vals)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(h_opening_vals, v_vals, dist_vals, label='data')
+    reg_v_vals = np.linspace(min(v_vals), max(v_vals), len(h_opening_vals))
+    # h_vals = np.array(list(h_opening_vals) * len(h_opening_vals))
+    # reg_v_vals = np.array(list(reg_v_vals) * len(h_opening_vals))
+
+    X, Y = np.meshgrid(h_opening_vals, reg_v_vals)
+    ax.plot_surface(X, Y, fit_func((X, Y), *params))
+    ax.set_xlabel('h_opening')
+    ax.set_ylabel('current velocity')
+    ax.set_zlabel('distance covered')
+    plt.show()
+
+
+def chute_opening_simulation(params):
+    h_opening, seed = params
+    pos = np.array([0, 0, const.h_plane])
+    v = np.array([const.v_plane, 0, 0])
+
+    wind = Wind_generator()
+    myDiver = Diver(pos, v, wind, H_VAL, seed=seed, h_opening=h_opening)
+    myDiver.simulate_trajectory()
+
+    for (x, y, z), (v_x, v_y, _) in zip(myDiver.x_list, myDiver.v_list):
+        if z < h_opening:
+            x_end, y_end = myDiver.x_list[-1][:2]
+            distance = np.sqrt((x - x_end) ** 2 + (y - y_end) ** 2)
+            v = np.sqrt(v_x ** 2 + v_y ** 2)
+            return v, distance
 
 def plot_params(x_vals, y_vals, dir_vals, w_x_bounds, w_y_bounds):
     seeds = np.arange(len(x_vals) * len(y_vals) * len(dir_vals) * NR_OF_SIMS)

@@ -5,7 +5,7 @@ import integration_error as err
 from wind_and_rho_generator import Wind_generator
 from wind_data_analysis import retrieve_data_combined
 from plot_data import plot_and_fit
-from optimal_params import find_optimal_params
+from optimal_params import find_optimal_params, chute_opening_plot
 import constants as const
 import multiprocessing
 
@@ -82,33 +82,14 @@ def plot_wind(nr_of_sims):
 
 def optimal_params(w_x_bounds=const.w_x_bounds,
                    w_y_bounds=const.w_y_bounds):
-    dir_vals = np.linspace(0, 2 * np.pi, 20)
+    dir_vals = np.linspace(0, 2 * np.pi, 5)
     pool = multiprocessing.Pool()
-    results = pool.map(find_optimal_params, [(d, w_x_bounds, w_y_bounds) for d in dir_vals])
+    distances = pool.map(find_optimal_params, [(d, w_x_bounds, w_y_bounds) for d in dir_vals])
     pool.close()
 
-    # print(results)
-
-    # devs_x, devs_y = np.array(results)[:,1]
-    devs_x, devs_y = [], []
-    for _, (dev_x, dev_y) in results:
-        devs_x.append(dev_x)
-        devs_y.append(dev_y)
-
-    # print(devs_x)
-    # print(devs_y)
-
-    # _, (dev_x, dev_y) = np.array(results).transpose()
     plt.figure(figsize=(14,8), dpi=100)
-
-    plt.subplot(121)
-    plt.plot(dir_vals, devs_x)
-    plt.title('The standard deviation in the x-direction.')
-
-    plt.subplot(122)
-    plt.plot(dir_vals, devs_y)
-    plt.title('The standard deviation in the x-direction.')
-
+    plt.plot(dir_vals, distances)
+    plt.title('The standard deviation of the distance from the origin.')
     plt.show()
 
 
@@ -117,10 +98,11 @@ if __name__ == '__main__':
                     '2 for trajectory plot, '
                     '3 for errors plot, '
                     '4 for wind simulations, '
-                    '5 for optimal params plot: '))
+                    '5 for optimal params plot, '
+                    '6 for parachute opening plot: '))
 
-    while num not in range(1, 6):
-        num = int(input('Please press 1, 2, 3 or 4: '))
+    while num not in range(1, 7):
+        num = int(input('Please press 1, 2, 3, 4, 5 or 6: '))
 
     if num in [1, 2]:
         # Initialize a wind_generator.
@@ -143,3 +125,5 @@ if __name__ == '__main__':
         plot_wind(nr_of_sims=7)
     elif num == 5:
         optimal_params()
+    elif num == 6:
+        chute_opening_plot()

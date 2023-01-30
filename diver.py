@@ -18,7 +18,8 @@ import constants as const
 class Diver():
 
     def __init__(self, x: np.array, velocity: np.array, wind,
-                 stepsize=0.001, int_method='rk4', seed=None):
+                 stepsize=0.001, int_method='rk4', seed=None,
+                 h_opening=const.h_opening):
 
         self.F_gravity = np.array([0, 0, -const.m_diver * const.g])
         self.rho = rho
@@ -32,6 +33,7 @@ class Diver():
         self.v_list = []
         self.a_list = []
 
+        self.h_opening = h_opening
         self.step_size = stepsize
         self.int_method = int_method
 
@@ -45,13 +47,13 @@ class Diver():
         _, _, x_z, v_x, v_y, v_z = data
 
         # Free fall
-        if x_z > const.h_opening:
+        if x_z > self.h_opening:
             C = const.C_diver
             A = const.A_diver
 
         # Under canopy
-        elif x_z >= const.h_opening - 45:
-            part = (const.h_opening - x_z) / 45
+        elif x_z >= self.h_opening - 45:
+            part = (self.h_opening - x_z) / 45
             C = const.sides(*[part * x + (1 - part) * y
                               for x, y in zip(const.C_chute, const.C_diver)])
             A = const.sides(*[part * x + (1 - part) * y
