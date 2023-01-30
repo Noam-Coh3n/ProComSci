@@ -7,7 +7,7 @@ import constants as const
 class Diver():
 
     def __init__(self, x: np.array, velocity: np.array, wind,
-                 stepsize: float = 0.001, seed=None):
+                 stepsize=0.001, int_method='rk4', seed=None):
 
         self.F_gravity = np.array([0, 0, -const.m_diver * const.g])
         self.rho = rho
@@ -28,6 +28,7 @@ class Diver():
         # self.pos_list = []
 
         self.step_size = stepsize
+        self.int_method = int_method
 
     def _add_new_pos(self):
         # self.pos_list.append(np.copy(self.pos))
@@ -36,8 +37,7 @@ class Diver():
         self.a_list.append(np.copy(self.a))
 
     def _diff(self, data: np.array):
-        """ Determine speed and acceleration given the position and speed.
-        """
+        """Determine speed and acceleration given the position and speed."""
         _, _, x_z, v_x, v_y, v_z = data
 
         # Free fall
@@ -72,32 +72,33 @@ class Diver():
         return np.array([v_x, v_y, v_z, a_x, a_y, a_z])
 
     # Integration methods
-    def integration(self, method):
+    def _step(self):
         h = self.step_size
         prev_y = np.append(self.x_list[-1], self.v_list[-1])
         y = np.append(self.x, self.v)
 
-        if method == 'central diff':
-            next_y, k = integration.integrate(method, h, self._diff, y, prev_y)
+        if self.int_method == 'central diff':
+            data = [y, prev_y]
+            # next_y, k = integration.integrate(self.int_method, h, self._diff, y, prev_y)
         else:
-            next_y, k = integration.integrate(method, h, self._diff, y)
+            data = [y]
+            # next_y, k = integration.integrate(method, h, self._diff, y)
+        new_y, k = integration.integrate(self.int_method, h, self._diff, *data)
 
-        self.x = next_y[:3]
-        self.v = next_y[3:]
+        self.x = new_y[:3]
+        self.v = new_y[3:]
         self.a = k[3:]
 
-    def move(self, method):
+    def move(self):
         # self.x2pos()
         self._add_new_pos()
-        self.integration(method)
+        self._step()
 
     # def x2pos(self):
     #     """Get position in cube from x location in real world."""
     #     self.pos = self.x * np.array([2, 2, -1]) +
     #  np.array([0, 0, self.x_z_0/2])
 
-    def simulate_trajectory(self, method):
-        while True:
-            if self.x[2] <= 0:
-                break
-            self.move(method)
+    def simulate_trajectory(self):
+        while self.x[2] > 0:
+            self.move()
