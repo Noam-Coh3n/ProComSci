@@ -1,3 +1,10 @@
+#
+# Name: Lars Bijvoet, Erik Leonards, Noam Cohen & Jelle Sipkes
+# Study: Double Bachelor mathematics and computer science.
+#
+# constants.py:
+# Here we define constants that we will use in different files.
+
 from collections import namedtuple
 
 v_plane = 45

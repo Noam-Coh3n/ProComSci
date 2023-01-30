@@ -1,3 +1,14 @@
+#
+# Name: Lars Bijvoet, Erik Leonards, Noam Cohen & Jelle Sipkes
+# Study: Double Bachelor mathematics and computer science.
+#
+# diver.py:
+# This is the diver file. In this file we have the class Diver.
+# In this class we will calculate everything that is needed for the simulation
+# of the diver.
+# Also the integration methods are used here which are imported from the
+# integration.py file.
+
 import numpy as np
 import integration
 from wind_and_rho_generator import rho
@@ -21,17 +32,10 @@ class Diver():
         self.v_list = []
         self.a_list = []
 
-        # self.x_z_0 = self.x[2]
-        # self.chute_pos = 0
-
-        # self.x2pos()
-        # self.pos_list = []
-
         self.step_size = stepsize
         self.int_method = int_method
 
     def _add_new_pos(self):
-        # self.pos_list.append(np.copy(self.pos))
         self.x_list.append(np.copy(self.x))
         self.v_list.append(np.copy(self.v))
         self.a_list.append(np.copy(self.a))
@@ -47,8 +51,6 @@ class Diver():
 
         # Under canopy
         elif x_z >= const.h_opening - 45:
-            # if self.chute_pos == 0:
-            #     self.chute_spos = self.pos[2]
             part = (const.h_opening - x_z) / 45
             C = const.sides(*[part * x + (1 - part) * y
                               for x, y in zip(const.C_chute, const.C_diver)])
@@ -90,14 +92,8 @@ class Diver():
         self.a = k[3:]
 
     def move(self):
-        # self.x2pos()
         self._add_new_pos()
         self._step()
-
-    # def x2pos(self):
-    #     """Get position in cube from x location in real world."""
-    #     self.pos = self.x * np.array([2, 2, -1]) +
-    #  np.array([0, 0, self.x_z_0/2])
 
     def simulate_trajectory(self):
         while self.x[2] > 0:

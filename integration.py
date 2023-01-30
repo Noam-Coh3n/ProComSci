@@ -1,3 +1,12 @@
+#
+# Name: Lars Bijvoet, Erik Leonards, Noam Cohen & Jelle Sipkes
+# Study: Double Bachelor mathematics and computer science.
+#
+# integration.py:
+# Here we define the different numerical integration methods, such as
+# Euler, Runge-kutta, predictor-corrector and central difference.
+# These methods will be used in different files.
+
 def _euler(h, deriv, y):
     k = deriv(y)
     next_y = y + h * k

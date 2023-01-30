@@ -1,3 +1,14 @@
+#
+# Name: Lars Bijvoet, Erik Leonards, Noam Cohen & Jelle Sipkes
+# Study: Double Bachelor mathematics and computer science.
+#
+# integration_error.py:
+# Here we run the simulation multiple times for all the different integration
+# methods. All the methods will be compared against the Runge-kutta order 4
+# with a very small stapsize. This file will give a plot with the global error
+# of the different methods. This global error represents the difference in
+# landingzones.
+
 from diver import Diver
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,15 +38,7 @@ def simulate_method(params):
             myDiver.simulate_trajectory()
 
             # Store the data.
-            # y_n = [x[0] for x in myDiver.x_list]
-            # step = len(myDiver.x_list) / 1000
-
-            # Determine the error and take the sum
-            # y_n_part = [y_n[int(np.floor(l))]
-            #             for l in np.arange(0, len(y_n), step)
-            #             if int(np.floor(l)) != len(y_n)]
             y_n_part = np.array(myDiver.x_list[-1][:2])
-            # total_error += sum(np.abs(np.array(y_part) - np.array(y_n_part)))
             total_error += np.linalg.norm(y_part - y_n_part)
         sum_errors.append(total_error / len(y_parts))
     return sum_errors
@@ -51,11 +54,6 @@ def simulate_control_experiment(seed):
     # Simulate the diver
     myDiver.simulate_trajectory()
 
-    # Get the positions
-    # y = [x[0] for x in myDiver.x_list]
-    # step_size = len(myDiver.x_list) / 1000
-    # return [y[int(np.floor(i))] for i in np.arange(0, len(y), step_size)
-    #     if int(np.floor(i)) != len(y)]
     return myDiver.x_list[-1][:2]
 
 
