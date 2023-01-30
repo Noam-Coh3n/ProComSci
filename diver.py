@@ -48,7 +48,7 @@ class Diver():
         # Under canopy
         elif x_z >= const.h_opening - 45:
             # if self.chute_pos == 0:
-            #     self.chute_pos = self.pos[2]
+            #     self.chute_spos = self.pos[2]
             part = (const.h_opening - x_z) / 45
             C = const.sides(*[part * x + (1 - part) * y
                               for x, y in zip(const.C_chute, const.C_diver)])
