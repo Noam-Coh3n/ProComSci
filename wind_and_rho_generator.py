@@ -34,18 +34,18 @@ class Wind_generator:
         self.w_avg, self.w_dev = funcs[0:2]
         self.c_avg, self.c_dev = funcs[2:]
 
-        self.w_lower = [lambda h: self.w_avg[0](h) - 2 * self.w_dev[0](h),
-                        lambda h: self.w_avg[1](h) - 2 * self.w_dev[1](h)]
+        self.w_lower = [lambda h: self.w_avg[0](h) - 1 * self.w_dev[0](h),
+                        lambda h: self.w_avg[1](h) - 1 * self.w_dev[1](h)]
 
-        self.w_upper = [lambda h: self.w_avg[0](h) + 2 * self.w_dev[0](h),
-                        lambda h: self.w_avg[1](h) + 2 * self.w_dev[1](h)]
+        self.w_upper = [lambda h: self.w_avg[0](h) + 1 * self.w_dev[0](h),
+                        lambda h: self.w_avg[1](h) + 1 * self.w_dev[1](h)]
 
     def wind(self, seed=None, wind_dir='x'):
         if seed is not None:
             np.random.seed(seed)
 
         i = 0 if wind_dir == 'x' else 1
-        wind_heights = np.arange(0, const.h_plane, self.stepsize)
+        wind_heights = np.arange(0, const.h_plane + self.stepsize, self.stepsize)
         wind = [0] * len(wind_heights)
 
         s = np.random.normal(self.w_avg[i](0), self.w_dev[i](0))
@@ -64,7 +64,7 @@ class Wind_generator:
 
             s = increase * np.abs(np.random.normal(mu, sigma))
             cur_wind += s if np.sign(cur_wind) == 1 else -s
-            while not (self.w_lower[i](0) <= cur_wind <= self.w_upper[i](0)):
+            while not (self.w_lower[i](h) <= cur_wind <= self.w_upper[i](h)):
                 cur_wind -= s if np.sign(cur_wind) == 1 else -s
                 s = increase * np.abs(np.random.normal(mu, sigma))
                 cur_wind += s if np.sign(cur_wind) == 1 else -s
@@ -84,5 +84,5 @@ class Wind_generator:
 
 
 if __name__ == '__main__':
-    wind = Wind_generator((-np.inf, -2), (2, np.inf))
+    wind = Wind_generator((-np.inf, -2), (-np.inf, -2))
     wind.plot_wind(wind_dir='x')
