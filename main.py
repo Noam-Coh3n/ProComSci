@@ -11,7 +11,6 @@ import multiprocessing
 
 STEP_SIZE = 0.005
 
-
 def visual(myDiver):
     from visual import Visual
     myVisual = Visual()
@@ -129,7 +128,7 @@ if __name__ == '__main__':
 
         # Add a diver.
         x = np.array([0., 0., const.h_plane])
-        velocity = np.array([const.v_plane, 0., 0.]),
+        velocity = np.array([const.v_plane, 0., 0.])
         myDiver = Diver(x, velocity, wind, STEP_SIZE)
 
         # Run model.

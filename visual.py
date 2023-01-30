@@ -300,7 +300,7 @@ class Visual:
         heights = heights[1::2]
 
         wind = np.array(list(zip(diver.wind_x(heights), diver.wind_y(heights))))
-        self.world.add_object_cluster(Wind(wind, 4000))
+        self.world.add_object_cluster(Wind(wind, DROP_HEIGHT))
 
         self.world.add_object(Arrow(500, np.array([1,0]), np.array([PARAMETER_SIZE/2 + 200, -PARAMETER_SIZE/2, DROP_HEIGHT/2]), green))
         self.world.add_object(Arrow(500, np.array([0,1]), np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 200, DROP_HEIGHT/2]), purple))
