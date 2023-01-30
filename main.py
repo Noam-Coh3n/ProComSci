@@ -5,7 +5,9 @@ import integration_error as err
 from wind_and_rho_generator import Wind_generator
 from wind_data_analysis import retrieve_data_combined
 from plot_data import plot_and_fit
+from optimal_params import find_optimal_params
 import constants as const
+import multiprocessing
 
 STEP_SIZE = 0.005
 
@@ -65,10 +67,8 @@ def errors():
     err.simulate_error(h_vals)
 
 def plot_wind(nr_of_sims):
-    x_res = (-np.inf, -2)
-    y_res = (-np.inf, -2)
-    wind = Wind_generator(x_res, y_res)
-    data = retrieve_data_combined(w_x_bounds=x_res, w_y_bounds=y_res)
+    wind = Wind_generator()
+    data = retrieve_data_combined()
 
     plt.figure(figsize=(8,8), dpi=150)
     plot_and_fit(data[0], data[1], xlabel='height', ylabel=r'$v (m/s)$',
@@ -81,19 +81,51 @@ def plot_wind(nr_of_sims):
         plt.plot(h_vals, wind_func(h_vals), 'r')
     plt.show()
 
+def optimal_params(w_x_bounds=const.w_x_bounds,
+                   w_y_bounds=const.w_y_bounds):
+    dir_vals = np.linspace(0, 2 * np.pi, 20)
+    pool = multiprocessing.Pool()
+    results = pool.map(find_optimal_params, [(d, w_x_bounds, w_y_bounds) for d in dir_vals])
+    pool.close()
+
+    # print(results)
+
+    # devs_x, devs_y = np.array(results)[:,1]
+    devs_x, devs_y = [], []
+    for _, (dev_x, dev_y) in results:
+        devs_x.append(dev_x)
+        devs_y.append(dev_y)
+
+    # print(devs_x)
+    # print(devs_y)
+
+    # _, (dev_x, dev_y) = np.array(results).transpose()
+    plt.figure(figsize=(14,8), dpi=100)
+
+    plt.subplot(121)
+    plt.plot(dir_vals, devs_x)
+    plt.title('The standard deviation in the x-direction.')
+
+    plt.subplot(122)
+    plt.plot(dir_vals, devs_y)
+    plt.title('The standard deviation in the x-direction.')
+
+    plt.show()
+
 
 if __name__ == '__main__':
     num = int(input('Press 1 for visual, '
-                    '2 for plot, '
+                    '2 for trajectory plot, '
                     '3 for errors plot, '
-                    '4 for wind simulations: '))
+                    '4 for wind simulations, '
+                    '5 for optimal params plot: '))
 
-    while num not in [1, 2, 3, 4]:
+    while num not in range(1, 6):
         num = int(input('Please press 1, 2, 3 or 4: '))
 
     if num in [1, 2]:
         # Initialize a wind_generator.
-        wind = Wind_generator()
+        wind = Wind_generator(const.w_x_bounds, const.w_y_bounds)
 
         # Add a diver.
         x = np.array([0., 0., const.h_plane])
@@ -109,4 +141,6 @@ if __name__ == '__main__':
     elif num == 3:
         errors()
     elif num == 4:
-        plot_wind(7)
+        plot_wind(nr_of_sims=7)
+    elif num == 5:
+        optimal_params()
