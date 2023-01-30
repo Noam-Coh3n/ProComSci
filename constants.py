@@ -1,9 +1,13 @@
 from collections import namedtuple
+import numpy as np
 
 v_plane = 45
 h_plane = 2500
 h_opening = 200
 radius_landing_area = 200
+
+w_x_bounds = (-np.inf, -2)
+w_y_bounds = (-np.inf, -2)
 
 m_diver = 83
 m_air = 4.81 * 10**(-26)
