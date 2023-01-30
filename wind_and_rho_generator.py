@@ -4,9 +4,10 @@ from scipy.interpolate import CubicSpline
 import constants as const
 from wind_data_analysis import change_of_wind, retrieve_data_combined
 from plot_data import avg_and_dev_fitter
+import constants as const
 
 
-def wind_data_functions(w_x_bounds=None, w_y_bounds=None):
+def wind_data_functions(w_x_bounds=const.w_x_bounds, w_y_bounds=const.w_y_bounds):
     h, w_x, w_y, _ = retrieve_data_combined(w_x_bounds, w_y_bounds)
     w_x_avg, w_x_dev = avg_and_dev_fitter(h, w_x)[-1]
     w_y_avg, w_y_dev = avg_and_dev_fitter(h, w_y)[-1]
@@ -26,7 +27,7 @@ def rho(h):
 
 class Wind_generator:
 
-    def __init__(self, w_x_bounds=None, w_y_bounds=None):
+    def __init__(self, w_x_bounds=const.w_x_bounds, w_y_bounds=const.w_y_bounds):
         funcs, a, b = wind_data_functions(w_x_bounds, w_y_bounds)
         self.inc_rates, self.stepsize = a, b
 

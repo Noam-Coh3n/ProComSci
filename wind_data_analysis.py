@@ -17,7 +17,7 @@ import numpy as np
 from os import path
 import re
 
-from constants import m_air, kB
+import constants as const
 from plot_data import plot_data
 
 # Numbers in the dataset that indicate a corrupt entry.
@@ -26,7 +26,7 @@ CORRUPT_VALUES = {-8888, -9999}
 
 def density(pressure: float, temperature: float) -> float:
     """Calculates the air density from the air pressure and temperature."""
-    return (pressure * m_air) / (kB * temperature)
+    return (pressure * const.m_air) / (const.kB * temperature)
 
 
 def clean_up_data_line(line: str) -> tuple:
@@ -74,13 +74,13 @@ def remove_data_above_height(max_height: int) -> None:
             new_data_file.write(line_data)
 
 
-def retrieve_rho_and_wind(data: list, w_x_bounds: tuple,
-                          w_y_bounds: tuple) -> list:
+def retrieve_rho_and_wind(data: list, w_x_bounds: tuple = const.w_x_bounds,
+                          w_y_bounds: tuple = const.w_y_bounds) -> list:
     """Returns the height, air density (rho) and wind data when being given
     the height, pressure, temperature and wind data.
     """
-    (x_low, x_high) = w_x_bounds if w_x_bounds else (-np.inf, np.inf)
-    (y_low, y_high) = w_y_bounds if w_y_bounds else (-np.inf, np.inf)
+    x_low, x_high = w_x_bounds
+    y_low, y_high = w_y_bounds
 
     result = []
     for data_item in data:
@@ -106,8 +106,8 @@ def retrieve_rho_and_wind(data: list, w_x_bounds: tuple,
     return result
 
 
-def retrieve_data_separate(w_x_bounds: tuple = None,
-                           w_y_bounds: tuple = None) -> list:
+def retrieve_data_separate(w_x_bounds: tuple = const.w_x_bounds,
+                           w_y_bounds: tuple = const.w_y_bounds) -> list:
     """Return a list where each item corresponds with one weather balloon."""
     result_data = []
     raw_data = str(open('wind_data.txt', 'r').read())
@@ -119,12 +119,12 @@ def retrieve_data_separate(w_x_bounds: tuple = None,
     return result_data
 
 
-def retrieve_data_combined(w_x_bounds: tuple = None,
-                           w_y_bounds: tuple = None) -> list:
-    """Returns the air density (rho) and wind data of the specified dates."""
+def retrieve_data_combined(w_x_bounds: tuple = const.w_x_bounds,
+                           w_y_bounds: tuple = const.w_y_bounds) -> list:
+    """Returns the wind data and the air density of the specified dates."""
     separate_data = retrieve_data_separate(w_x_bounds, w_y_bounds)
 
-    # Combines all the data to get 4 lists: height, rho, w_x, w_y.
+    # Combines all the data to get 4 lists: height, w_x, w_y, rho.
     data = [[], [], [], []]
     for item in separate_data:
         for i in range(4):
@@ -138,7 +138,8 @@ def all_dates() -> list:
             for m in range(1, 13) for d in range(1, 32)]
 
 
-def change_of_wind(w_x_bounds: tuple = None, w_y_bounds: tuple = None) -> list:
+def change_of_wind(w_x_bounds: tuple = const.w_x_bounds,
+                   w_y_bounds: tuple = const.w_y_bounds) -> list:
     """Return a list with the following information:
     - the height,
     - changes of wind speed in the x- and y-direction,
@@ -191,14 +192,20 @@ def change_of_wind(w_x_bounds: tuple = None, w_y_bounds: tuple = None) -> list:
 
 
 if __name__ == '__main__':
-    begin = 0
-    restrictions = [(-np.inf, begin), (begin, np.inf)]
-    for x_res in restrictions:
-        for y_res in restrictions:
-            wind_data = retrieve_data_combined(x_res, y_res)
-            plot_data(wind_data)
+    # begin = 0
+    # restrictions = [(-np.inf, begin), (begin, np.inf)]
+    # for x_res in restrictions:
+    #     for y_res in restrictions:
+    #         wind_data = retrieve_data_combined(x_res, y_res)
+    #         plot_data(wind_data)
 
-            h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind()
-            # print(f'{increase_rates = }')
-            # print(f'{avg_h_diff = }')
-            plot_data([h, c_x, c_y], data_variable='change')
+    #         h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind()
+    #         # print(f'{increase_rates = }')
+    #         # print(f'{avg_h_diff = }')
+    #         plot_data([h, c_x, c_y], data_variable='change')
+
+    wind_data = retrieve_data_combined()
+    plot_data(wind_data)
+
+    h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind()
+    plot_data([h, c_x, c_y], data_variable='change')
