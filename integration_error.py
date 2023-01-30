@@ -46,7 +46,7 @@ def simulate_control_experiment(seed):
     # Get diver data with stepsize equal to 0.001 and the Runge Kutta method.
     x = np.array([0., 0., const.h_plane])
     velocity = np.array([const.v_plane, 0., 0.])
-    myDiver = Diver(x, velocity, wind, 0.001, 'rk4', seed)
+    myDiver = Diver(x, velocity, wind, 0.0001, 'rk4', seed)
 
     # Simulate the diver
     myDiver.simulate_trajectory()
