@@ -10,6 +10,7 @@ import constants as const
 
 STEP_SIZE = 0.005
 
+
 def visual(myDiver):
     from visual import Visual
     myVisual = Visual()
@@ -64,6 +65,7 @@ def errors():
     h_vals = np.logspace(-2, -1, 10)
     err.simulate_error(h_vals)
 
+
 def plot_wind(nr_of_sims):
     wind = Wind_generator()
     data = retrieve_data_combined()
@@ -83,12 +85,14 @@ def plot_wind(nr_of_sims):
     plt.legend()
     plt.show()
 
+
 def optimal_params(w_x_bounds=const.w_x_bounds,
                    w_y_bounds=const.w_y_bounds):
     dir_vals = np.linspace(0, 2 * np.pi, 10)
     plot_optimal_params(dir_vals, w_x_bounds=w_x_bounds, w_y_bounds=w_y_bounds)
     # landing_locs_plot(w_x_bounds=w_x_bounds, w_y_bounds=w_y_bounds)
     pass
+
 
 if __name__ == '__main__':
     num = int(input('Press 1 for visual, '

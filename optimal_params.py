@@ -27,6 +27,7 @@ def simulate_params(params):
 
     return params[:NR_OF_PARAMS] + landing_locations
 
+
 def find_optimal_params(params):
     x, y, d, w_x_bounds, w_y_bounds, dynamic_opening = params
     if dynamic_opening:
@@ -39,12 +40,13 @@ def find_optimal_params(params):
     locations = simulate_params(params)[NR_OF_PARAMS:]
     avg_x, avg_y = sum(np.array(locations)) / len(locations)
     distances = [np.sqrt((x - avg_x) ** 2 + (y - avg_y) ** 2)
-                         for x, y in locations]
+                 for x, y in locations]
 
     avg_distance = sum(distances) / len(distances)
     std_dev_distance = np.sqrt(sum((d - avg_distance) ** 2
                                for d in distances) / (len(distances) - 1))
     return avg_distance, std_dev_distance, avg_x, avg_y
+
 
 def plot_optimal_params(dir_vals, w_x_bounds=const.w_x_bounds,
                         w_y_bounds=const.w_y_bounds):
@@ -91,9 +93,11 @@ def bilin_func(X, a, b, c, d):
     x, y = X
     return a * x * y + b * x + c * y + d
 
+
 def trilin_func(X, a1, a2, a3, a4, a5, a6, a7, a8):
     x, y, z = X
     return a1*x*y*z + a2*x*y + a3*x*z + a4*y*z + a5*x + a6*y + a7*z + a8
+
 
 def chute_opening_func(plot=False):
     h = np.linspace(const.min_h_opening, const.max_h_opening, 50)
@@ -104,7 +108,6 @@ def chute_opening_func(plot=False):
     pool = multiprocessing.Pool()
     results = pool.map(chute_opening_simulation, zip(h, seeds))
     pool.close()
-
 
     wx, wy, dx, dy = np.array(results).transpose()
     w = np.sqrt(wx ** 2 + wy ** 2)
@@ -121,7 +124,6 @@ def chute_opening_func(plot=False):
              'h_wx_wy_dir',
              'dist_w_h',
              'dist_wx_wy_h']
-
 
     params = [curve_fit(bilin_func, (h, w), dist)[0],
               curve_fit(trilin_func, (h, wx, wy), dist)[0],
@@ -151,6 +153,7 @@ def chute_opening_func(plot=False):
 
     # return lambda X : bilin_func(X, *h_w_params)
 
+
 def pred_func(output, *inputs):
     with open('params.txt', 'r') as f:
         for line in f:
@@ -165,9 +168,9 @@ def pred_func(output, *inputs):
             # print(names, inputs, output)
             if names[:-1] == list(inputs) and names[-1] == output:
                 if len(names) == 3:
-                    return lambda x, y : bilin_func((x, y), *params)
+                    return lambda x, y: bilin_func((x, y), *params)
                 else:
-                    return lambda x, y, z : trilin_func((x, y, z), *params)
+                    return lambda x, y, z: trilin_func((x, y, z), *params)
 
 
 def chute_opening_simulation(params):
