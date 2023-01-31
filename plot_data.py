@@ -92,22 +92,21 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
 
     # Plot the standard deviation and average.
     if not only_plot_fitted:
-        plt.fill_between(reg_x_vals,
+        plt.plot(reg_x_vals,
                         np.array(avg) - np.array(dev),
                         np.array(avg) + np.array(dev),
                         alpha=0.7, color=const.color_dev, label='std dev')
         plt.plot(reg_x_vals, avg, color=const.color_avg, label='avg values')
 
     # Plot the quadratic polynomials corresponding to the avg and std dev.
-    plt.plot(reg_x_vals, fitted_y_vals, color=const.color_fitted_avg,
-            label='avg value fit: quadratic')
-    plt.plot(reg_x_vals, fitted_y_vals + fitted_dev_vals,
-            color=const.color_fitted_dev, label='std dev fit: quadratic')
-    plt.plot(reg_x_vals, fitted_y_vals - fitted_dev_vals,
-            color=const.color_fitted_dev)
+    # plt.plot(reg_x_vals, fitted_y_vals, color=const.color_fitted_avg,
+    #         label='avg value fit: quadratic')
+    plt.fill_between(reg_x_vals, fitted_y_vals - fitted_dev_vals,
+                     fitted_y_vals + fitted_dev_vals,
+                     alpha=0.2, color=const.color_fitted_dev, label='std dev fit: quadratic')
     # plot_avg_and_dev(reg_x_vals, bins)
 
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.legend()
+    # plt.legend()

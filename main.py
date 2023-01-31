@@ -75,9 +75,13 @@ def plot_wind(nr_of_sims):
                  only_plot_fitted=True)
 
     h_vals = np.arange(0, const.h_plane, 10)
-    for _ in range(nr_of_sims):
+    for i in range(nr_of_sims):
         wind_func = wind.wind(wind_dir='x')
-        plt.plot(h_vals, wind_func(h_vals), 'r')
+        if i == 0:
+            plt.plot(h_vals, wind_func(h_vals), '#6D0DD5', label="Generated Wind")
+        else:
+            plt.plot(h_vals, wind_func(h_vals), '#6D0DD5')
+    plt.legend()
     plt.show()
 
 def optimal_params(w_x_bounds=const.w_x_bounds,
@@ -114,7 +118,7 @@ if __name__ == '__main__':
     elif num == 3:
         errors()
     elif num == 4:
-        plot_wind(nr_of_sims=7)
+        plot_wind(nr_of_sims=3)
     elif num == 5:
         optimal_params()
     elif num == 6:
