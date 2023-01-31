@@ -31,6 +31,6 @@ A_chute = sides(47.8, 23.9)
 
 color_avg = '#319600'
 color_dev = '#00696b'
-color_fitted_avg = '#1c0f00'
-color_fitted_dev = '#700000'
-color_dataset = '#02006b'
+color_fitted_avg = '#49820F'
+color_fitted_dev = '#0DD5D1'
+color_dataset = '#144A7B'
