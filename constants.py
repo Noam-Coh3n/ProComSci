@@ -10,8 +10,8 @@ import numpy as np
 
 v_plane = 45
 h_plane = 2500
-min_h_opening = 150
-max_h_opening = 250
+min_h_opening = 100
+max_h_opening = 500
 h_opening = 200
 radius_landing_area = 200
 
