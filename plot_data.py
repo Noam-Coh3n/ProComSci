@@ -9,13 +9,7 @@
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import numpy as np
-
-# Define colors for the plots.
-COLOR_AVG = '#319600'
-COLOR_dev = '#00696b'
-COLOR_FITTED_AVG = '#1c0f00'
-COLOR_FITTED_dev = '#700000'
-COLOR_DATASET = '#02006b'
+import constants as const
 
 
 def fit_func(x: float, a: float, b: float, c: float) -> float:
@@ -88,7 +82,7 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
 
     # Plot the dataset.
     plt.scatter(x_vals, y_vals, alpha=0.4, s=1,
-                c=COLOR_DATASET, label='observed data')
+                c=const.color_dataset, label='observed data')
 
     reg_x_vals, avg, dev, fitters = avg_and_dev_fitter(x_vals, y_vals)
     avg_fitter, dev_fitter = fitters
@@ -101,16 +95,16 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
         plt.fill_between(reg_x_vals,
                         np.array(avg) - np.array(dev),
                         np.array(avg) + np.array(dev),
-                        alpha=0.7, color=COLOR_dev, label='std dev')
-        plt.plot(reg_x_vals, avg, color=COLOR_AVG, label='avg values')
+                        alpha=0.7, color=const.color_dev, label='std dev')
+        plt.plot(reg_x_vals, avg, color=const.color_avg, label='avg values')
 
     # Plot the quadratic polynomials corresponding to the avg and std dev.
-    plt.plot(reg_x_vals, fitted_y_vals, color=COLOR_FITTED_AVG,
+    plt.plot(reg_x_vals, fitted_y_vals, color=const.color_fitted_avg,
             label='avg value fit: quadratic')
     plt.plot(reg_x_vals, fitted_y_vals + fitted_dev_vals,
-            color=COLOR_FITTED_dev, label='std dev fit: quadratic')
+            color=const.color_fitted_dev, label='std dev fit: quadratic')
     plt.plot(reg_x_vals, fitted_y_vals - fitted_dev_vals,
-            color=COLOR_FITTED_dev)
+            color=const.color_fitted_dev)
     # plot_avg_and_dev(reg_x_vals, bins)
 
     plt.title(title)

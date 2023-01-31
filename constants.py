@@ -10,6 +10,8 @@ import numpy as np
 
 v_plane = 45
 h_plane = 2500
+min_h_opening = 150
+max_h_opening = 250
 h_opening = 200
 radius_landing_area = 200
 
@@ -26,3 +28,9 @@ C_diver = sides(1.18, 1.11)
 C_chute = sides(1.68, 0.35)
 A_diver = sides(0.55, 0.38)
 A_chute = sides(47.8, 23.9)
+
+color_avg = '#319600'
+color_dev = '#00696b'
+color_fitted_avg = '#1c0f00'
+color_fitted_dev = '#700000'
+color_dataset = '#02006b'

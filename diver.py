@@ -19,7 +19,7 @@ class Diver():
 
     def __init__(self, x: np.array, velocity: np.array, wind,
                  stepsize=0.001, int_method='rk4', seed=None,
-                 h_opening=const.h_opening):
+                 h_opening=const.h_opening, h_opening_func=None):
 
         self.F_gravity = np.array([0, 0, -const.m_diver * const.g])
         self.rho = rho
@@ -34,6 +34,7 @@ class Diver():
         self.a_list = []
 
         self.h_opening = h_opening
+        self.h_opening_func = h_opening_func
         self.step_size = stepsize
         self.int_method = int_method
 
@@ -44,7 +45,21 @@ class Diver():
 
     def _diff(self, data: np.array):
         """Determine speed and acceleration given the position and speed."""
-        _, _, x_z, v_x, v_y, v_z = data
+        x_x, x_y, x_z, v_x, v_y, v_z = data
+
+        w_x = self.wind_x(x_z)
+        w_y = self.wind_y(x_z)
+        if self.h_opening_func and const.max_h_opening > x_z and x_z > self.h_opening:
+            chute_travel_distance = self.h_opening_func((x_z, np.sqrt(w_x ** 2 + w_y ** 2)))
+            closest_x_to_origin = (x_y * w_x - w_y * x_x) / ((w_x ** 2) / w_y + w_y)
+            closest_y_to_origin = - w_x / w_y * closest_x_to_origin
+
+            dist_to_closest_point = np.sqrt((x_x - closest_x_to_origin) ** 2
+                                            + (x_y - closest_y_to_origin) ** 2)
+            if dist_to_closest_point < chute_travel_distance or x_z < const.min_h_opening:
+                self.h_opening = x_z
+
+            print(x_x, x_y, x_z, w_x, w_y, dist_to_closest_point, chute_travel_distance)
 
         # Free fall
         if x_z > self.h_opening:

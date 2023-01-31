@@ -5,7 +5,7 @@ import integration_error as err
 from wind_and_rho_generator import Wind_generator
 from wind_data_analysis import retrieve_data_combined
 from plot_data import plot_and_fit
-from optimal_params import find_optimal_params, chute_opening_plot
+from optimal_params import plot_optimal_params, chute_opening_func
 import constants as const
 import multiprocessing
 
@@ -82,16 +82,8 @@ def plot_wind(nr_of_sims):
 
 def optimal_params(w_x_bounds=const.w_x_bounds,
                    w_y_bounds=const.w_y_bounds):
-    dir_vals = np.linspace(0, 2 * np.pi, 5)
-    pool = multiprocessing.Pool()
-    distances = pool.map(find_optimal_params, [(d, w_x_bounds, w_y_bounds) for d in dir_vals])
-    pool.close()
-
-    plt.figure(figsize=(14,8), dpi=100)
-    plt.plot(dir_vals, distances)
-    plt.title('The standard deviation of the distance from the origin.')
-    plt.show()
-
+    dir_vals = np.linspace(0, 2 * np.pi, 3)
+    plot_optimal_params(dir_vals, w_x_bounds=w_x_bounds, w_y_bounds=w_y_bounds)
 
 if __name__ == '__main__':
     num = int(input('Press 1 for visual, '
@@ -126,4 +118,4 @@ if __name__ == '__main__':
     elif num == 5:
         optimal_params()
     elif num == 6:
-        chute_opening_plot()
+        chute_opening_func(plot=True)
