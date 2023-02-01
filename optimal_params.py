@@ -6,72 +6,38 @@ from diver import Diver
 from wind_and_rho_generator import Wind_generator
 from scipy.optimize import curve_fit
 
-NR_OF_SIMS = 5
 H_VAL = 0.05
 
-NR_OF_PARAMS = 4
 
-
-def simulate_params(params):
-    x, y, d, dynamic_funcs = params[:NR_OF_PARAMS]
-    pos = np.array([x, y, const.h_plane])
-    v = np.array([np.cos(d) * const.v_plane, np.sin(d) * const.v_plane, 0])
-    wind = Wind_generator(const.w_x_bounds, const.w_y_bounds)
+def simulate_params(x, y, h_opening, dynamic_funs=None, seeds=[None]):
+    pos = np.array([x, y, const.h_plane], dtype=float)
+    v = np.array([const.v_plane, 0, 0], dtype=float)
+    w = Wind_generator(const.w_x_bounds, const.w_y_bounds)
 
     landing_locations = []
-    for seed in params[NR_OF_PARAMS:]:
-        myDiver = Diver(pos, v, wind, H_VAL, seed=seed, dynamic_funcs=dynamic_funcs)
+    for seed in seeds:
+        myDiver = Diver(pos, v, w, H_VAL, 'rk4', seed, h_opening, dynamic_funs)
         myDiver.simulate_trajectory()
         landing_locations.append(myDiver.x[:2])
 
-    return params[:NR_OF_PARAMS] + landing_locations
+    return landing_locations
 
 
-def find_optimal_params(params):
-    x, y, d, dynamic_opening = params
-    if dynamic_opening:
-        dist_func = pred_func('dist', 'h', 'w')
-        dir_func = pred_func('dir', 'h', 'wx', 'wy')
-        params = [x, y, d, (dist_func, dir_func), *range(5)]
-    else:
-        params = [x, y, d, None, *range(5)]
-
-    locations = simulate_params(params)[NR_OF_PARAMS:]
-    avg_x, avg_y = sum(np.array(locations)) / len(locations)
-    distances = [np.sqrt((x - avg_x) ** 2 + (y - avg_y) ** 2)
-                 for x, y in locations]
-
-    avg_distance = sum(distances) / len(distances)
-    std_dev_distance = np.sqrt(sum((d - avg_distance) ** 2
-                               for d in distances) / (len(distances) - 1))
-    return avg_distance, std_dev_distance, avg_x, avg_y
+def simulate_height(h_opening):
+    result = np.array(simulate_params(0, 400, h_opening, seeds=range(20)))
+    y_vals = result.transpose()[1]
+    return abs(np.mean(y_vals))
 
 
-def plot_optimal_params(dir_vals):
+def find_optimal_height():
     pool = multiprocessing.Pool()
-    results = pool.map(find_optimal_params, [(0, 0, d, False) for d in dir_vals])
-    pool.close()
+    heights = np.arange(100, 400, 10)
+    result = np.array(pool.map(simulate_height, heights))
+    return heights[result.argsort()][0]
 
-    avg_dist, dev, avg_loc_x, avg_loc_y = np.array(results).transpose()
 
-    avg_dist = np.array(avg_dist)
-    dev = np.array(dev)
-
-    print(avg_loc_x, avg_loc_y, '\n\n')
-
-    pool = multiprocessing.Pool()
-    results = pool.map(find_optimal_params, [(-x, -y, d, True) for x, y, d in zip(avg_loc_x, avg_loc_y, dir_vals)])
-    pool.close()
-
-    avg_dist, dev, avg_loc_x, avg_loc_y = np.array(results).transpose()
-
-    print(f'{avg_loc_x = }\n{avg_loc_y = }\n')
-
-    plt.figure(figsize=(14, 8), dpi=100)
-    plt.fill_between(dir_vals, avg_dist - dev, avg_dist + dev,
-                     alpha=0.3, color=const.color_dev, label='variable (std dev)')
-    plt.plot(dir_vals, avg_dist, color=const.color_avg, label='variable (avg)')
-    plt.show()
+def find_optimal_x(h_opening):
+    return -np.mean([simulate_params(0, 0, h_opening) for _ in range(100)])
 
 
 def bilin_func(X, a, b, c, d):

@@ -87,10 +87,7 @@ def plot_wind(nr_of_sims):
 
 
 def optimal_params():
-    dir_vals = np.linspace(0, 2 * np.pi, 10)
-    plot_optimal_params(dir_vals)
-    # landing_locs_plot(w_x_bounds=w_x_bounds, w_y_bounds=w_y_bounds)
-    pass
+    plot_optimal_params()
 
 
 if __name__ == '__main__':
