@@ -63,7 +63,8 @@ def plot(myDiver):
 
 def errors():
     # Setup variables
-    h_vals = np.logspace(-2, -1, 10)
+    # plt.figure(figsize=(5, 5), dpi=300)
+    h_vals = np.logspace(-2, -1, 5)
     err.simulate_error(h_vals)
 
 
@@ -71,10 +72,10 @@ def plot_wind(nr_of_sims):
     wind = Wind_generator()
     data = retrieve_data_combined()
 
-    plt.figure(figsize=(8, 8), dpi=150)
-    plot_and_fit(data[0], data[1], xlabel='height', ylabel=r'$v (m/s)$',
-                 title=r'Wind speed in the $x$ direction with generated wind.',
-                 plot_real=True)
+    plt.figure(figsize=(6, 6), dpi=300)
+    plot_and_fit(data[0], data[1], xlabel='height(m)', ylabel=r'$v (m/s)$',
+                 title=r'Wind speed in the $x$ direction with generated wind',
+                 plot_fitted=True)
 
     h_vals = np.arange(0, const.h_plane, 10)
     for i in range(nr_of_sims):

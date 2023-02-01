@@ -30,7 +30,7 @@ def plot_data(data, data_variable=['wind', 'rho']):
     if 'rho' in data_variable:
         title_list.append(r'The air density $\rho$')
 
-    plt.figure(figsize=(14, 8), dpi=200)
+    plt.figure(figsize=(14, 8), dpi=150)
     nr_of_subplots = len(data) - 1
 
     for i, title in enumerate(title_list, 1):
@@ -82,7 +82,7 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
 
     # Plot the dataset.
     plt.scatter(x_vals, y_vals, alpha=0.4, s=1,
-                c=const.color_dataset, label='observed data')
+                c=const.color_dataset, label='Observed data')
 
     reg_x_vals, avg, dev, fitters = avg_and_dev_fitter(x_vals, y_vals)
     avg_fitter, dev_fitter = fitters
@@ -108,6 +108,8 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
         # plot_avg_and_dev(reg_x_vals, bins)
 
     plt.title(title)
+    # plt.tight_layout()
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
     # plt.legend()
