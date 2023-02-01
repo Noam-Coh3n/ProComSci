@@ -5,7 +5,8 @@ import integration_error as err
 from wind_and_rho_generator import Wind_generator
 from wind_data_analysis import retrieve_data_combined
 from plot_data import plot_and_fit
-from optimal_params import chute_opening_func, plot_optimal_params
+from dynamic_opening import chute_opening_func
+from optimal_params import plot_optimal_params
 import constants as const
 
 STEP_SIZE = 0.005
@@ -123,4 +124,4 @@ if __name__ == '__main__':
     elif num == 5:
         optimal_params()
     elif num == 6:
-        chute_opening_func(plot=True)
+        chute_opening_func()
