@@ -19,7 +19,7 @@ class Diver():
 
     def __init__(self, x: np.array, velocity: np.array, wind,
                  stepsize=0.001, int_method='rk4', seed=None,
-                 h_opening=const.h_opening, h_opening_func=None):
+                 h_opening=const.h_opening, dynamic_funcs=None):
 
         self.F_gravity = np.array([0, 0, -const.m_diver * const.g])
         self.rho = rho
@@ -33,8 +33,12 @@ class Diver():
         self.v_list = []
         self.a_list = []
 
-        self.h_opening = h_opening
-        self.h_opening_func = h_opening_func
+        self.dynamic_funcs = dynamic_funcs
+        if dynamic_funcs:
+            self.dist_func, self.dir_func = dynamic_funcs
+            self.h_opening = const.min_h_opening
+        else:
+            self.h_opening = h_opening
         self.step_size = stepsize
         self.int_method = int_method
 
@@ -49,30 +53,26 @@ class Diver():
 
         w_x = self.wind_x(x_z)
         w_y = self.wind_y(x_z)
-        if self.h_opening_func and const.max_h_opening > x_z and x_z > self.h_opening:
-            chute_travel_distance = self.h_opening_func((x_z, np.sqrt(w_x ** 2 + w_y ** 2)))
-            closest_x_to_origin = (x_y * w_x - w_y * x_x) / ((w_x ** 2) / w_y + w_y)
-            closest_y_to_origin = - w_x / w_y * closest_x_to_origin
+        if self.dynamic_funcs and const.max_h_opening > x_z and x_z > self.h_opening:
+            dist = self.dist_func(x_z, np.sqrt(w_x ** 2 + w_y ** 2))
+            # closest_x_to_origin = (-x_y * w_x + w_y * x_x) / ((w_x ** 2) / w_y + w_y)
+            # closest_y_to_origin = - w_x / w_y * closest_x_to_origin
+
+            dir = self.dir_func(x_z, w_x, w_y)
+
+            closest_x_to_origin = (dir * x_x - x_y) / (1 / dir + dir)
+            closest_y_to_origin = - closest_x_to_origin / dir
 
             dist_to_closest_point = np.sqrt((x_x - closest_x_to_origin) ** 2
                                             + (x_y - closest_y_to_origin) ** 2)
-            if dist_to_closest_point < chute_travel_distance or x_z < const.min_h_opening:
+            if dist_to_closest_point > dist or x_z < const.min_h_opening:
                 self.h_opening = x_z
-
-            print(x_x, x_y, x_z, w_x, w_y, dist_to_closest_point, chute_travel_distance)
 
         # Free fall
         if x_z > self.h_opening:
             C = const.C_diver
             A = const.A_diver
-
         # Under canopy
-        elif x_z >= self.h_opening - 45:
-            part = (self.h_opening - x_z) / 45
-            C = const.sides(*[part * x + (1 - part) * y
-                              for x, y in zip(const.C_chute, const.C_diver)])
-            A = const.sides(*[part * x + (1 - part) * y
-                              for x, y in zip(const.A_chute, const.A_diver)])
         else:
             C = const.C_chute
             A = const.A_chute

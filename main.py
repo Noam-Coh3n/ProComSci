@@ -5,11 +5,11 @@ import integration_error as err
 from wind_and_rho_generator import Wind_generator
 from wind_data_analysis import retrieve_data_combined
 from plot_data import plot_and_fit
-from optimal_params import plot_optimal_params, chute_opening_func
+from optimal_params import chute_opening_func, plot_optimal_params
 import constants as const
-import multiprocessing
 
 STEP_SIZE = 0.005
+
 
 def visual(myDiver):
     from visual import Visual
@@ -62,14 +62,15 @@ def plot(myDiver):
 
 def errors():
     # Setup variables
-    h_vals = np.logspace(-3, -1, 10)
+    h_vals = np.logspace(-2, -1, 10)
     err.simulate_error(h_vals)
+
 
 def plot_wind(nr_of_sims):
     wind = Wind_generator()
     data = retrieve_data_combined()
 
-    plt.figure(figsize=(8,8), dpi=150)
+    plt.figure(figsize=(8, 8), dpi=150)
     plot_and_fit(data[0], data[1], xlabel='height', ylabel=r'$v (m/s)$',
                  title=r'Wind speed in the $x$ direction with generated wind.',
                  plot_real=True)
@@ -84,10 +85,10 @@ def plot_wind(nr_of_sims):
     plt.legend()
     plt.show()
 
-def optimal_params(w_x_bounds=const.w_x_bounds,
-                   w_y_bounds=const.w_y_bounds):
-    dir_vals = np.linspace(0, 2 * np.pi, 3)
-    plot_optimal_params(dir_vals, w_x_bounds=w_x_bounds, w_y_bounds=w_y_bounds)
+
+def optimal_params():
+    plot_optimal_params()
+
 
 if __name__ == '__main__':
     num = int(input('Press 1 for visual, '
