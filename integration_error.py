@@ -18,7 +18,7 @@ from wind_and_rho_generator import Wind_generator
 
 # Define the methods that will be compared
 methods = ['rk4', 'euler', 'central diff', 'pred-corr']
-nr_of_seeds = 5
+nr_of_seeds = 10
 
 
 def simulate_method(params):
@@ -46,7 +46,7 @@ def simulate_method(params):
 
 def simulate_control_experiment(seed):
     wind = Wind_generator()
-    # Get diver data with stepsize equal to 0.001 and the Runge Kutta method.
+    # Get diver data with stepsize equal to 0.0001 and the Runge Kutta method.
     x = np.array([0., 0., const.h_plane])
     velocity = np.array([const.v_plane, 0., 0.])
     myDiver = Diver(x, velocity, wind, 0.0001, 'rk4', seed)

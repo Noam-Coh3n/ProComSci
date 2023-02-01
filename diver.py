@@ -67,12 +67,21 @@ class Diver():
             A = const.A_diver
 
         # Under canopy
-        elif x_z >= self.h_opening - 45:
-            part = (self.h_opening - x_z) / 45
-            C = const.sides(*[part * x + (1 - part) * y
-                              for x, y in zip(const.C_chute, const.C_diver)])
-            A = const.sides(*[part * x + (1 - part) * y
-                              for x, y in zip(const.A_chute, const.A_diver)])
+        # elif x_z >= self.h_opening - 10:
+        #     # part = (self.h_opening - x_z) / 45
+        #     # C = const.sides(*[part * x + (1 - part) * y
+        #     #                   for x, y in zip(const.C_chute, const.C_diver)])
+        #     # A = const.sides(*[part * x + (1 - part) * y
+        #     #                   for x, y in zip(const.A_chute, const.A_diver)])
+        #     part = (self.h_opening - x_z) / 10
+        #     a1, a2 = const.C_chute
+        #     b1, b2 = const.C_diver
+        #     c1, c2 = const.A_chute
+        #     d1, d2 = const.A_diver
+        #     C = const.sides(part * a1 + (1 - part) * b1, part * a2 + (1 - part) * b2)
+        #     A = const.sides(part * c1 + (1 - part) * d1, part * c2 + (1 - part) * d2)
+        #     # C = const.C_diver
+        #     # A = const.A_diver
         else:
             C = const.C_chute
             A = const.A_chute
