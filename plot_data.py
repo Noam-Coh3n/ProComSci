@@ -30,7 +30,7 @@ def plot_data(data, data_variable=['wind', 'rho']):
     if 'rho' in data_variable:
         title_list.append(r'The air density $\rho$')
 
-    plt.figure(figsize=(14, 8), dpi=100)
+    plt.figure(figsize=(14, 8), dpi=200)
     nr_of_subplots = len(data) - 1
 
     for i, title in enumerate(title_list, 1):
@@ -72,7 +72,7 @@ def avg_and_dev_fitter(x_vals, y_vals):
 
 def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
                  ylabel: str = '', title: str = '',
-                 only_plot_fitted: bool = False) -> None:
+                 plot_real: bool = False, plot_fitted=False) -> None:
     """This function does the following:
     - Plot the given data as a scatter plot.
     - Plot the average value and standard deviation at every point.
@@ -91,20 +91,21 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
     fitted_dev_vals = dev_fitter(reg_x_vals)
 
     # Plot the standard deviation and average.
-    if not only_plot_fitted:
-        plt.plot(reg_x_vals,
+    if plot_real:
+        plt.fill_between(reg_x_vals,
                         np.array(avg) - np.array(dev),
                         np.array(avg) + np.array(dev),
-                        alpha=0.7, color=const.color_dev, label='std dev')
-        plt.plot(reg_x_vals, avg, color=const.color_avg, label='avg values')
+                        alpha=0.3, color=const.color_dev, label='standard deviation')
+        # plt.plot(reg_x_vals, avg, color=const.color_avg, label='avg values')
 
     # Plot the quadratic polynomials corresponding to the avg and std dev.
     # plt.plot(reg_x_vals, fitted_y_vals, color=const.color_fitted_avg,
     #         label='avg value fit: quadratic')
-    plt.fill_between(reg_x_vals, fitted_y_vals - fitted_dev_vals,
-                     fitted_y_vals + fitted_dev_vals,
-                     alpha=0.2, color=const.color_fitted_dev, label='std dev fit: quadratic')
-    # plot_avg_and_dev(reg_x_vals, bins)
+    if plot_fitted:
+        plt.fill_between(reg_x_vals, fitted_y_vals - fitted_dev_vals,
+                        fitted_y_vals + fitted_dev_vals,
+                        alpha=0.2, color=const.color_fitted_dev, label='Within standard deviation')
+        # plot_avg_and_dev(reg_x_vals, bins)
 
     plt.title(title)
     plt.xlabel(xlabel)

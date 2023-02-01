@@ -72,7 +72,7 @@ def plot_wind(nr_of_sims):
     plt.figure(figsize=(8,8), dpi=150)
     plot_and_fit(data[0], data[1], xlabel='height', ylabel=r'$v (m/s)$',
                  title=r'Wind speed in the $x$ direction with generated wind.',
-                 only_plot_fitted=True)
+                 plot_real=True)
 
     h_vals = np.arange(0, const.h_plane, 10)
     for i in range(nr_of_sims):
