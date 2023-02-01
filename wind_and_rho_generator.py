@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
-import constants as const
 from wind_data_analysis import change_of_wind, retrieve_data_combined
 from plot_data import avg_and_dev_fitter
 import constants as const
@@ -80,7 +79,7 @@ class Wind_generator:
         plt.plot(h_vals, wind_func(h_vals))
         plt.xlabel(r'h (m)')
         plt.ylabel(r'$v (m/s)$')
-        plt.title(f'Wind in {dir}-direction.')
+        plt.title(f'Wind in {wind_dir}-direction.')
         plt.show()
 
 

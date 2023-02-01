@@ -12,8 +12,8 @@ v_plane = 45
 h_plane = 2500
 min_h_opening = 100
 max_h_opening = 500
-h_opening = 200
-radius_landing_area = 200
+h_opening = 201.64589404056144
+landing_point = [0, -250]
 
 w_x_bounds = (-np.inf, -2)
 w_y_bounds = (-np.inf, -2)

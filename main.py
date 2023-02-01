@@ -70,7 +70,7 @@ def plot_wind(nr_of_sims):
     wind = Wind_generator()
     data = retrieve_data_combined()
 
-    plt.figure(figsize=(8,8), dpi=150)
+    plt.figure(figsize=(8, 8), dpi=150)
     plot_and_fit(data[0], data[1], xlabel='height', ylabel=r'$v (m/s)$',
                  title=r'Wind speed in the $x$ direction with generated wind.',
                  only_plot_fitted=True)
@@ -86,10 +86,9 @@ def plot_wind(nr_of_sims):
     plt.show()
 
 
-def optimal_params(w_x_bounds=const.w_x_bounds,
-                   w_y_bounds=const.w_y_bounds):
+def optimal_params():
     dir_vals = np.linspace(0, 2 * np.pi, 10)
-    plot_optimal_params(dir_vals, w_x_bounds=w_x_bounds, w_y_bounds=w_y_bounds)
+    plot_optimal_params(dir_vals)
     # landing_locs_plot(w_x_bounds=w_x_bounds, w_y_bounds=w_y_bounds)
     pass
 
