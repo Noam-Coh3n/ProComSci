@@ -4,175 +4,126 @@ import numpy as np
 import multiprocessing
 from diver import Diver
 from wind_and_rho_generator import Wind_generator
-from scipy.optimize import curve_fit
+from dynamic_opening import pred_func
+from statistics import stdev
 
-NR_OF_SIMS = 5
 H_VAL = 0.05
 
-NR_OF_PARAMS = 6
-chute_func_params = [0.20227224, 0.12543934, -4.04154588, -42.77106607]
 
-
-def simulate_params(params):
-    x, y, d, w_x_bounds, w_y_bounds, h_opening_func = params[:NR_OF_PARAMS]
-    pos = np.array([x, y, const.h_plane])
-    v = np.array([np.cos(d) * const.v_plane, np.sin(d) * const.v_plane, 0])
-    wind = Wind_generator(w_x_bounds, w_y_bounds)
+def simulate_params(x, y, h_opening, dynamic_funcs=None, seeds=[None]):
+    pos = np.array([x, y, const.h_plane], dtype=float)
+    v = np.array([const.v_plane, 0, 0], dtype=float)
+    w = Wind_generator(const.w_x_bounds, const.w_y_bounds)
 
     landing_locations = []
-    for seed in params[NR_OF_PARAMS:]:
-        myDiver = Diver(pos, v, wind, H_VAL, seed=seed, h_opening_func=h_opening_func)
+    for seed in seeds:
+        myDiver = Diver(pos, v, w, H_VAL, 'rk4', seed, h_opening, dynamic_funcs)
         myDiver.simulate_trajectory()
         landing_locations.append(myDiver.x[:2])
 
-    return params[:NR_OF_PARAMS] + landing_locations
+    return landing_locations
 
-def find_optimal_params(params):
-    x, y, d, w_x_bounds, w_y_bounds, func_params = params
-    h_opening_func = (lambda X : fit_func(X, *func_params)) if func_params else None
-    params = [x, y, d, w_x_bounds, w_y_bounds, h_opening_func, *range(5)]
-    locations = simulate_params(params)[NR_OF_PARAMS:]
-    avg_x, avg_y = sum(np.array(locations)) / len(locations)
-    distances = [np.sqrt((x - avg_x) ** 2 + (y - avg_y) ** 2)
-                         for x, y in locations]
+def simulate_height(h_opening):
+    result = np.array(simulate_params(0, 400, h_opening, seeds=range(3)))
+    y_vals = result.transpose()[1]
+    return abs(np.mean(y_vals))
 
-    avg_distance = sum(distances) / len(distances)
-    std_dev_distance = np.sqrt(sum((d - avg_distance) ** 2
-                               for d in distances) / (len(distances) - 1))
-    return avg_distance, std_dev_distance, avg_x, avg_y
 
-def plot_optimal_params(dir_vals, w_x_bounds=const.w_x_bounds,
-                        w_y_bounds=const.w_y_bounds):
+def find_optimal_height():
+    heights = np.arange(150, 191, 10)
     pool = multiprocessing.Pool()
-    results = pool.map(find_optimal_params, [(0, 0, d, w_x_bounds, w_y_bounds, None) for d in dir_vals])
+    result = np.array(pool.map(simulate_height, heights))
     pool.close()
 
-    avg_dist, dev, avg_loc_x, avg_loc_y = np.array(results).transpose()
 
-    avg_dist = np.array(avg_dist)
-    dev = np.array(dev)
-
-    lower = list(avg_dist - dev)
-    upper = list(avg_dist + dev)
-
-    plt.figure(figsize=(14,8), dpi=100)
-    plt.fill_between(dir_vals, lower, upper,
-                     alpha=0.3, color=const.color_dev, label='constant (std dev)')
-    plt.plot(dir_vals, avg_dist, color=const.color_avg, label='constant (avg)')
-
-    plt.show()
-
-    # func = lambda X : fit_func(X, *chute_func_params)
-    # print(func((150, 5)))
-
-
-    pool = multiprocessing.Pool()
-    results = pool.map(find_optimal_params, [(-x, -y, d, w_x_bounds, w_y_bounds, chute_func_params) for x, y, d in zip(avg_loc_x, avg_loc_y, dir_vals)])
-    pool.close()
-
-    avg_dist, dev, avg_loc_x, avg_loc_y = np.array(results).transpose()
-
-    print(f'{avg_loc_x = }\n{avg_loc_y = }\n')
-
-    plt.figure(figsize=(14,8), dpi=100)
-    plt.fill_between(dir_vals, avg_dist - dev, avg_dist + dev,
-                     alpha=0.3, color=const.color_dev, label='variable (std dev)')
-    plt.plot(dir_vals, avg_dist, color=const.color_avg, label='variable (avg)')
+    plt.plot(heights, result)
+    plt.xlabel('opening height(m)')
+    plt.ylabel('distance from origin(m)')
     plt.show()
 
 
-def fit_func(X, a, b, c, d):
-    h, v = X
-    return a * v * h + b * h + c * v + d
+    return heights[result.argsort()][0]
 
-def chute_opening_func(plot=False):
-    h_opening_vals = np.linspace(const.min_h_opening, const.max_h_opening, 50)
-    v_vals = []
-    dist_vals = []
-    seeds = np.arange(len(h_opening_vals)) + 1000
+
+def parallel_func(params):
+    x,y, h_opening, dynamic_funcs, seed = params
+    if dynamic_funcs:
+        dist_func = pred_func('dist', 'h', 'w')
+        dir_func = pred_func('dir', 'h', 'wx', 'wy')
+        return simulate_params(x, y, h_opening, dynamic_funcs=(dist_func, dir_func), seeds=[seed])
+    return simulate_params(x, y, h_opening, seeds=[seed])
+
+def find_optimal_x(h_opening):
+    pool = multiprocessing.Pool()
+    seeds = range(10)
+    landing_locations = pool.map(parallel_func, [(0, 0, h_opening, None, s) for s in seeds])
+    landing_locations = np.array(landing_locations).reshape((-1, 2))
+    # print(landing_locations)
+    pool.close()
+    return -np.mean(landing_locations[:,0])
+    # return -np.mean([simulate_params(0, 0, h_opening) for _ in range(10)])
+
+
+def plot_optimal_params():
+    h = find_optimal_height()
+    print(h)
+    x = find_optimal_x(h)
+    print(x)
+
+    seeds = range(20)
 
     pool = multiprocessing.Pool()
-    results = pool.map(chute_opening_simulation, zip(h_opening_vals, seeds))
+    stat_locs = pool.map(parallel_func, [(x, 400, h, None, s) for s in seeds])
+    dyn_locs = pool.map(parallel_func, [(x, 400, h, True, s) for s in seeds])
     pool.close()
 
-    for v, dist in results:
-        v_vals.append(v)
-        dist_vals.append(dist)
-
-    params, _, = curve_fit(fit_func, (h_opening_vals, v_vals), dist_vals)
-
-    if plot:
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        reg_v_vals = np.linspace(min(v_vals), max(v_vals), len(h_opening_vals))
-        X, Y = np.meshgrid(h_opening_vals, reg_v_vals)
-
-        ax.scatter(h_opening_vals, v_vals, dist_vals, label='data')
-        ax.plot_surface(X, Y, fit_func((X, Y), *params))
-        ax.set_xlabel('h_opening')
-        ax.set_ylabel('current velocity')
-        ax.set_zlabel('distance covered')
-        plt.show()
-
-    print(f'{params = }')
-
-    return lambda X : fit_func(X, *params)
+    stat_locs = np.array(stat_locs).reshape((-1, 2)).transpose()
+    dyn_locs = np.array(dyn_locs).reshape((-1, 2)).transpose()
 
 
-def chute_opening_simulation(params):
-    h_opening, seed = params
-    pos = np.array([0, 0, const.h_plane])
-    v = np.array([const.v_plane, 0, 0])
+    # print(stat_locs)
+    # print(dyn_locs)
 
-    wind = Wind_generator()
-    myDiver = Diver(pos, v, wind, H_VAL, seed=seed, h_opening=h_opening)
-    myDiver.simulate_trajectory()
+    stat_avg = np.array([np.mean(stat_locs[0]), np.mean(stat_locs[1])])
+    dyn_avg = np.array([np.mean(dyn_locs[0]), np.mean(dyn_locs[1])])
 
-    for x, y, z in myDiver.x_list:
-        w_x = myDiver.wind_x(z)
-        w_y = myDiver.wind_y(z)
-        if z < h_opening:
-            x_end, y_end = myDiver.x_list[-1][:2]
-            distance = np.sqrt((x - x_end) ** 2 + (y - y_end) ** 2)
-            v = np.sqrt(w_x ** 2 + w_y ** 2)
-            return v, distance
+    stat_std_dev = [stdev(stat_locs[0]), stdev(stat_locs[1])]
+    dyn_std_dev = [stdev(dyn_locs[0]), stdev(dyn_locs[1])]
 
-# def plot_params(x_vals, y_vals, dir_vals, w_x_bounds, w_y_bounds):
-#     seeds = np.arange(len(x_vals) * len(y_vals) * len(dir_vals) * NR_OF_SIMS)
-#     seeds = np.reshape(seeds, (-1, NR_OF_SIMS))
-#     params_list = [[x, y, d, w_x_bounds, w_y_bounds]
-#                    for x in x_vals for y in y_vals for d in dir_vals]
+    print(f'{stat_avg = }')
+    print(f'{stat_std_dev = }')
+    print(f'{dyn_avg = }')
+    print(f'{dyn_std_dev = }')
+    print()
 
-#     params_list = [params + list(r) for params, r in zip(params_list, seeds)]
-#     pool = multiprocessing.Pool()
-#     landing_locations = pool.map(simulate_params, params_list)
-#     pool.close()
-
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111, projection='3d')
-
-#     x_list, y_list, z_list, p_list = [], [], [], []
-#     for x, y, d, _, _, locations in landing_locations:
-#         p = len(1 for x, y in locations \
-#                 if x ** 2 + y ** 2 < const.radius_landing_area ** 2)
-#         x_list.append(x)
-#         y_list.append(y)
-#         z_list.append(d)
-#         p_list.append(p)
-
-#     plot = ax.scatter(x_list, y_list, z_list, c=p_list, cmap=plt.cm.RdYlGn,
-#                       vmin=0, vmax=1)
-#     ax.set_xlabel('x-position')
-#     ax.set_ylabel('y-position')
-#     ax.set_zlabel('approach angle')
-
-#     fig.colorbar(plot, ax=ax)
-
-#     plt.show()
+    stat_std_dev = np.mean([np.linalg.norm(loc - stat_avg) for loc in stat_locs.transpose()])
+    dyn_std_dev = np.mean([np.linalg.norm(loc - dyn_avg) for loc in dyn_locs.transpose()])
 
 
-# if __name__ == '__main__':
-#     dir_vals = np.linspace(0, 2 * np.pi, NUMBER_D)
-#     x_vals = np.linspace(-1000, -500, NUMBER_X)
-#     y_vals = np.linspace(0, 0, NUMBER_Y)
-#     simulate_params(x_vals, y_vals, dir_vals)
+    print(f'{stat_avg = }')
+    print(f'{stat_std_dev = }')
+    print(f'{dyn_avg = }')
+    print(f'{dyn_std_dev = }')
+
+
+    plt.figure(figsize=(5,4), dpi=300)
+
+    stat_color = '#4b64cf'
+    dyn_color = '#cf744b'
+
+    # circle_stat = plt.Circle(stat_avg, stat_std_dev, alpha=0.3, color=stat_color)
+    # plt.gca().add_patch(circle_stat)
+
+    # circle_dyn = plt.Circle(dyn_avg, dyn_std_dev, alpha=0.3, color=dyn_color)
+    # plt.gca().add_patch(circle_dyn)
+
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
+    plt.title('Static and dynamic opening simulations')
+    plt.scatter(*stat_locs, s=4, color=stat_color, label='static')
+    plt.scatter(*dyn_locs, s=4, color=dyn_color ,label='dynamic')
+    plt.plot([0], [0], color='black', marker='x', linestyle='None', label='landing target')
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$y$')
+    plt.legend()
+    plt.show()

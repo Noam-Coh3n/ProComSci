@@ -18,7 +18,7 @@ from wind_and_rho_generator import Wind_generator
 
 # Define the methods that will be compared
 methods = ['rk4', 'euler', 'central diff', 'pred-corr']
-nr_of_seeds = 10
+nr_of_seeds = 3
 
 
 def simulate_method(params):
@@ -49,7 +49,7 @@ def simulate_control_experiment(seed):
     # Get diver data with stepsize equal to 0.0001 and the Runge Kutta method.
     x = np.array([0., 0., const.h_plane])
     velocity = np.array([const.v_plane, 0., 0.])
-    myDiver = Diver(x, velocity, wind, 0.0001, 'rk4', seed)
+    myDiver = Diver(x, velocity, wind, 0.001, 'rk4', seed)
 
     # Simulate the diver
     myDiver.simulate_trajectory()
@@ -75,7 +75,8 @@ def simulate_error(h_vals):
     pool.close()
 
     # Plot the sum of the error.
-    plt.figure("Error methods")
+    plt.figure("Error methods", dpi=300)
+    plt.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
     for method, sum_error in zip(methods, sum_errors):
         plt.plot(h_vals, sum_error, label=method)
     plt.legend()
