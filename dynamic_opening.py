@@ -18,7 +18,7 @@ def trilin_func(X, a1, a2, a3, a4, a5, a6, a7, a8):
     return a1*x*y*z + a2*x*y + a3*x*z + a4*y*z + a5*x + a6*y + a7*z + a8
 
 
-def chute_opening_func(plot=False):
+def chute_opening_func():
     h = np.linspace(const.min_h_opening, const.max_h_opening, 50)
     seeds = np.arange(len(h)) + 1000
 

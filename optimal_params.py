@@ -4,7 +4,7 @@ import numpy as np
 import multiprocessing
 from diver import Diver
 from wind_and_rho_generator import Wind_generator
-from scipy.optimize import curve_fit
+from dynamic_opening import pred_func
 
 H_VAL = 0.05
 
@@ -24,17 +24,63 @@ def simulate_params(x, y, h_opening, dynamic_funs=None, seeds=[None]):
 
 
 def simulate_height(h_opening):
-    result = np.array(simulate_params(0, 400, h_opening, seeds=range(20)))
+    result = np.array(simulate_params(0, 400, h_opening, seeds=range(3)))
     y_vals = result.transpose()[1]
     return abs(np.mean(y_vals))
 
 
 def find_optimal_height():
-    pool = multiprocessing.Pool()
     heights = np.arange(100, 400, 10)
+    pool = multiprocessing.Pool()
     result = np.array(pool.map(simulate_height, heights))
+    pool.close()
     return heights[result.argsort()][0]
 
 
+def parallel_func(params):
+    x,y, h_opening, seed = params
+    return simulate_params(x, y, h_opening, seeds=[seed])
+
+
 def find_optimal_x(h_opening):
-    return -np.mean([simulate_params(0, 0, h_opening) for _ in range(100)])
+    pool = multiprocessing.Pool()
+    seeds = range(10)
+    landing_locations = pool.map(parallel_func, [(0, 0, h_opening, s) for s in seeds])
+    landing_locations = np.array(landing_locations).reshape((-1, 2))
+    print(landing_locations)
+    pool.close()
+    return -np.mean(landing_locations[:,0])
+    # return -np.mean([simulate_params(0, 0, h_opening) for _ in range(10)])
+
+
+def plot_optimal_params():
+    h = find_optimal_height()
+    print(h)
+    x = find_optimal_x(h)
+    print(x)
+
+    dist_func = pred_func('dist', 'h', 'w')
+    dir_func = pred_func('dir', 'h', 'wx', 'wy')
+    seeds = range(3)
+
+    pool = multiprocessing.Pool()
+    static_locs = simulate_params(x, 400, h, seeds=seeds)
+    dynamic_locs = simulate_params(x, 400, h, (dist_func, dir_func), seeds=seeds)
+    pool.close()
+
+    static_locs = np.array(static_locs).transpose()
+    dynamic_locs = np.array(dynamic_locs).transpose()
+
+
+    print(static_locs)
+    print(dynamic_locs)
+
+    plt.figure(figsize=(14,10), dpi=100)
+    plt.title('Static and dynamic opening simulations')
+    plt.scatter(*static_locs, s=1, label='static')
+    plt.scatter(*dynamic_locs, s=1, label='dynamic')
+    plt.plot([0], [0], color='black', marker='x', linestyle='None', label='landing target')
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$y$')
+    plt.legend()
+    plt.show()
