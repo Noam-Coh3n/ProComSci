@@ -17,11 +17,13 @@ def simulate_params(x, y, h_opening, dynamic_funcs=None, seeds=[None]):
 
     landing_locations = []
     for seed in seeds:
-        myDiver = Diver(pos, v, w, H_VAL, 'rk4', seed, h_opening, dynamic_funcs)
+        myDiver = Diver(pos, v, w, H_VAL, 'rk4', seed,
+                        h_opening, dynamic_funcs)
         myDiver.simulate_trajectory()
         landing_locations.append(myDiver.x[:2])
 
     return landing_locations
+
 
 def simulate_height(h_opening):
     result = np.array(simulate_params(0, 400, h_opening, seeds=range(20)))
@@ -37,39 +39,44 @@ def find_optimal_height():
 
     res = np.array([i[0] for i in result])
     dev = np.array([i[1] for i in result])
-    plt.figure(figsize=(5,3), dpi=350)
+    plt.figure(figsize=(5, 4), dpi=200)
     plt.tight_layout()
     plt.subplots_adjust(left=0.2, bottom=0.19, right=0.95, top=0.9)
     plt.title('Landing location opening height')
     plt.fill_between(heights, res - dev, res + dev,
-                     alpha=0.2, color=const.color_fitted_dev, label='standard deviation')
-    plt.plot(heights, res, '#6D0DD5', label='Avg dist from target')
+                     alpha=0.2, color=const.color_fitted_dev,
+                     label='standard deviation')
+    plt.plot(heights, res, '#6D0DD5', label='Opening')
     plt.xlabel('opening height(m)')
     plt.ylabel('distance from origin(m)')
     plt.legend()
     plt.show()
 
-    result = np.array(result)[:,0]
+    result = np.array(result)[:, 0]
 
     return heights[result.argsort()][0]
 
 
 def parallel_func(params):
-    x,y, h_opening, dynamic_funcs, seed = params
+    x, y, h_opening, dynamic_funcs, seed = params
     if dynamic_funcs:
         dist_func = pred_func('dist', 'h', 'w')
         dir_func = pred_func('dir', 'h', 'wx', 'wy')
-        return simulate_params(x, y, h_opening, dynamic_funcs=(dist_func, dir_func), seeds=[seed])
+        return simulate_params(x, y, h_opening,
+                               dynamic_funcs=(dist_func, dir_func),
+                               seeds=[seed])
     return simulate_params(x, y, h_opening, seeds=[seed])
+
 
 def find_optimal_x(h_opening):
     pool = multiprocessing.Pool()
     seeds = range(50)
-    landing_locations = pool.map(parallel_func, [(0, 0, h_opening, None, s) for s in seeds])
+    landing_locations = pool.map(parallel_func,
+                                 [(0, 0, h_opening, None, s) for s in seeds])
     landing_locations = np.array(landing_locations).reshape((-1, 2))
     # print(landing_locations)
     pool.close()
-    return -np.mean(landing_locations[:,0])
+    return -np.mean(landing_locations[:, 0])
     # return -np.mean([simulate_params(0, 0, h_opening) for _ in range(10)])
 
 
@@ -104,22 +111,23 @@ def plot_optimal_params():
     print(f'{dyn_std_dev = }')
     print()
 
-    stat_std_dev = np.mean([np.linalg.norm(loc - stat_avg) for loc in stat_locs.transpose()])
-    dyn_std_dev = np.mean([np.linalg.norm(loc - dyn_avg) for loc in dyn_locs.transpose()])
-
+    stat_std_dev = np.mean([np.linalg.norm(loc - stat_avg)
+                            for loc in stat_locs.transpose()])
+    dyn_std_dev = np.mean([np.linalg.norm(loc - dyn_avg)
+                           for loc in dyn_locs.transpose()])
 
     print(f'{stat_avg = }')
     print(f'{stat_std_dev = }')
     print(f'{dyn_avg = }')
     print(f'{dyn_std_dev = }')
 
-
-    plt.figure(figsize=(5,4), dpi=300)
+    plt.figure(figsize=(5, 4), dpi=300)
 
     stat_color = '#4b64cf'
     dyn_color = '#cf744b'
 
-    circle_stat = plt.Circle(stat_avg, stat_std_dev, alpha=0.3, color=stat_color)
+    circle_stat = plt.Circle(stat_avg, stat_std_dev,
+                             alpha=0.3, color=stat_color)
     plt.gca().add_patch(circle_stat)
 
     circle_dyn = plt.Circle(dyn_avg, dyn_std_dev, alpha=0.3, color=dyn_color)
@@ -129,8 +137,9 @@ def plot_optimal_params():
     plt.subplots_adjust(left=0.15, bottom=0.15, right=0.95, top=0.9)
     plt.title('Static and dynamic opening simulations')
     plt.scatter(*stat_locs, s=4, color=stat_color, label='static')
-    plt.scatter(*dyn_locs, s=4, color=dyn_color ,label='dynamic')
-    plt.plot([0], [0], color='black', marker='x', linestyle='None', label='landing target')
+    plt.scatter(*dyn_locs, s=4, color=dyn_color, label='dynamic')
+    plt.plot([0], [0], color='black', marker='x', linestyle='None',
+             label='landing target')
     plt.xlabel(r'$x$')
     plt.ylabel(r'$y$')
     plt.legend()

@@ -20,6 +20,7 @@ class Diver():
     def __init__(self, x: np.array, velocity: np.array, wind,
                  stepsize=0.001, int_method='rk4', seed=None,
                  h_opening=const.h_opening, dynamic_funcs=None):
+        """Initialise all variables."""
 
         self.F_gravity = np.array([0, 0, -const.m_diver * const.g])
         self.rho = rho
@@ -53,9 +54,11 @@ class Diver():
 
         w_x = self.wind_x(x_z)
         w_y = self.wind_y(x_z)
-        if self.dynamic_funcs and const.max_h_opening > x_z and x_z > self.h_opening:
+        if (self.dynamic_funcs and const.max_h_opening > x_z and
+                x_z > self.h_opening):
             dist = self.dist_func(x_z, np.sqrt(w_x ** 2 + w_y ** 2))
-            # closest_x_to_origin = (-x_y * w_x + w_y * x_x) / ((w_x ** 2) / w_y + w_y)
+            # closest_x_to_origin = ((-x_y * w_x + w_y * x_x) /
+            #                        ((w_x ** 2) / w_y + w_y))
             # closest_y_to_origin = - w_x / w_y * closest_x_to_origin
 
             dir = self.dir_func(x_z, w_x, w_y)
@@ -98,10 +101,8 @@ class Diver():
 
         if self.int_method == 'central diff':
             data = [y, prev_y]
-            # next_y, k = integration.integrate(self.int_method, h, self._diff, y, prev_y)
         else:
             data = [y]
-            # next_y, k = integration.integrate(method, h, self._diff, y)
         new_y, k = integration.integrate(self.int_method, h, self._diff, *data)
 
         self.x = new_y[:3]

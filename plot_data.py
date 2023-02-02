@@ -93,9 +93,10 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
     # Plot the standard deviation and average.
     if plot_real:
         plt.fill_between(reg_x_vals,
-                        np.array(avg) - np.array(dev),
-                        np.array(avg) + np.array(dev),
-                        alpha=0.3, color=const.color_dev, label='standard deviation')
+                         np.array(avg) - np.array(dev),
+                         np.array(avg) + np.array(dev),
+                         alpha=0.3, color=const.color_dev,
+                         label='standard deviation')
         # plt.plot(reg_x_vals, avg, color=const.color_avg, label='avg values')
 
     # Plot the quadratic polynomials corresponding to the avg and std dev.
@@ -103,8 +104,9 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
     #         label='avg value fit: quadratic')
     if plot_fitted:
         plt.fill_between(reg_x_vals, fitted_y_vals - fitted_dev_vals,
-                        fitted_y_vals + fitted_dev_vals,
-                        alpha=0.2, color=const.color_fitted_dev, label='Within standard deviation')
+                         fitted_y_vals + fitted_dev_vals,
+                         alpha=0.2, color=const.color_fitted_dev,
+                         label='Within standard deviation')
         # plot_avg_and_dev(reg_x_vals, bins)
 
     plt.title(title)

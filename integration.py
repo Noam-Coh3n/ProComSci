@@ -7,6 +7,7 @@
 # Euler, Runge-kutta, predictor-corrector and central difference.
 # These methods will be used in different files.
 
+
 def _euler(h, deriv, y):
     k = deriv(y)
     next_y = y + h * k
