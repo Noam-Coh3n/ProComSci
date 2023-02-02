@@ -1,3 +1,14 @@
+#
+# Name: Lars Bijvoet, Erik Leonards, Noam Cohen & Jelle Sipkes
+# Study: Double Bachelor mathematics and computer science.
+#
+# visual.py:
+# Here the visual is made.
+# A 3D cube is created with just a 2D plane and the skydiver is simulated
+# in that cube.
+# Run main.py and press 1 then you can see the trajectory of the skydiver
+# and the wind.
+
 import numpy as np
 import pygame
 import help_visual as hp
