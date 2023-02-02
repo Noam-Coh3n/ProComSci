@@ -1,3 +1,18 @@
+#
+# Name: Lars Bijvoet, Erik Leonards, Noam Cohen & Jelle Sipkes
+# Study: Double Bachelor mathematics and computer science.
+#
+# optimal_params.py:
+# This file will output 2 different plots when plot_optimal_params is run.
+# The first plot shows for different values of parachute opening heights
+# what the difference in y-value is between the landing position and the
+# target (at y-value 400).
+# The second plot is a scatter plot and shows the landing locations of the
+# skydiver when he used a static and a dynamic opening height. Static in this
+# context refers to the fact that the skydiver chooses the optimal opening
+# height before flight while in the dynamic seting, the skydiver can choose
+# the opening height during flight.
+
 import constants as const
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,11 +25,17 @@ from statistics import stdev
 H_VAL = 0.05
 
 
-def simulate_params(x, y, h_opening, dynamic_funcs=None, seeds=[None]):
+def simulate_params(x: float, y: float, h_opening: float,
+                    dynamic_funcs: tuple = None,
+                    seeds: list = [None]) -> list:
+    """Simulates a skydiver for given seeds and returns landing locations."""
+
+    # Initialize the skydiver position and velocity and the wind.
     pos = np.array([x, y, const.h_plane], dtype=float)
     v = np.array([const.v_plane, 0, 0], dtype=float)
     w = Wind_generator(const.w_x_bounds, const.w_y_bounds)
 
+    # Simulate the skydiver for all given seeds.
     landing_locations = []
     for seed in seeds:
         myDiver = Diver(pos, v, w, H_VAL, 'rk4', seed,
@@ -25,28 +46,34 @@ def simulate_params(x, y, h_opening, dynamic_funcs=None, seeds=[None]):
     return landing_locations
 
 
-def simulate_height(h_opening):
-    result = np.array(simulate_params(0, 400, h_opening, seeds=range(20)))
+def simulate_height(h_opening: float) -> tuple:
+    """Returns the average and standard deviation of the y travel distance."""
+    result = np.array(simulate_params(0, 400, h_opening, seeds=range(10)))
     y_vals = result.transpose()[1]
     return abs(np.mean(y_vals)), stdev(y_vals)
 
 
-def find_optimal_height():
-    heights = np.arange(207, 214, 1)
+def find_optimal_height() -> float:
+    """Plots different opening heights and returns the best one."""
+    heights = np.arange(100, 400, 50)
+
+    # Simulates different heights in parallel.
     pool = multiprocessing.Pool()
     result = np.array(pool.map(simulate_height, heights))
     pool.close()
 
-    res = np.array([i[0] for i in result])
-    dev = np.array([i[1] for i in result])
+    avg = np.array([item[0] for item in result])
+    std_dev = np.array([item[1] for item in result])
+
+    # Plot the average distance and the standard deviaton as transparant area.
     plt.figure(figsize=(5, 4), dpi=200)
     plt.tight_layout()
-    plt.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
+    plt.subplots_adjust(left=0.15, bottom=0.15, right=0.95, top=0.9)
     plt.title('Landing location opening height')
-    plt.fill_between(heights, res - dev, res + dev,
+    plt.fill_between(heights, avg - std_dev, avg + std_dev,
                      alpha=0.2, color=const.color_fitted_dev,
                      label='standard deviation')
-    plt.plot(heights, res, '#6D0DD5', label='Opening')
+    plt.plot(heights, avg, '#6D0DD5', label='Opening')
     plt.xlabel('opening height(m)')
     plt.ylabel('distance from origin(m)')
     plt.legend()
@@ -57,9 +84,13 @@ def find_optimal_height():
     return heights[result.argsort()][0]
 
 
-def parallel_func(params):
+def parallel_func(params: list) -> list:
     x, y, h_opening, dynamic_funcs, seed = params
+
     if dynamic_funcs:
+        # Define the dist_func (returns parachute travel distance given height
+        # and wind speed) and dir_func (returns parachute travel direction
+        # given height and wind speed in the x and y direction).
         dist_func = pred_func('dist', 'h', 'w')
         dir_func = pred_func('dir', 'h', 'wx', 'wy')
         return simulate_params(x, y, h_opening,
@@ -68,25 +99,34 @@ def parallel_func(params):
     return simulate_params(x, y, h_opening, seeds=[seed])
 
 
-def find_optimal_x(h_opening):
+def find_optimal_x(h_opening: float) -> float:
+    """Returns the optimal x coordinate of the jump position given a
+    parachute opening height.
+    """
+    seeds = range(20)
+
     pool = multiprocessing.Pool()
-    seeds = range(50)
     landing_locations = pool.map(parallel_func,
                                  [(0, 0, h_opening, None, s) for s in seeds])
-    landing_locations = np.array(landing_locations).reshape((-1, 2))
-    # print(landing_locations)
     pool.close()
+
+    landing_locations = np.array(landing_locations).reshape((-1, 2))
     return -np.mean(landing_locations[:, 0])
-    # return -np.mean([simulate_params(0, 0, h_opening) for _ in range(10)])
 
 
-def plot_optimal_params():
+def plot_optimal_params() -> None:
+    """Finds the optimal opening height and jump position and plots the
+    landing locations of a skydiver in the static and dynamic setting that
+    uses the found optimal parameters.
+    """
     h = find_optimal_height()
-    print(f'{h = }')
     x = find_optimal_x(h)
+
+    print('Optimal values for parachute opening height en jump position:')
+    print(f'{h = }')
     print(f'{x = }')
 
-    seeds = range(70)
+    seeds = range(10)
 
     pool = multiprocessing.Pool()
     stat_locs = pool.map(parallel_func, [(x, 400, h, None, s) for s in seeds])
@@ -96,43 +136,27 @@ def plot_optimal_params():
     stat_locs = np.array(stat_locs).reshape((-1, 2)).transpose()
     dyn_locs = np.array(dyn_locs).reshape((-1, 2)).transpose()
 
-    # print(stat_locs)
-    # print(dyn_locs)
+    # Calculates the average landing location and average distance from
+    # the average landing location (comparable to standard deviation).
+    stat_avg_loc = np.array([np.mean(stat_locs[0]), np.mean(stat_locs[1])])
+    dyn_avg_loc = np.array([np.mean(dyn_locs[0]), np.mean(dyn_locs[1])])
 
-    stat_avg = np.array([np.mean(stat_locs[0]), np.mean(stat_locs[1])])
-    dyn_avg = np.array([np.mean(dyn_locs[0]), np.mean(dyn_locs[1])])
-
-    stat_std_dev = [stdev(stat_locs[0]), stdev(stat_locs[1])]
-    dyn_std_dev = [stdev(dyn_locs[0]), stdev(dyn_locs[1])]
-
-    print(f'{stat_avg = }')
-    print(f'{stat_std_dev = }')
-    print(f'{dyn_avg = }')
-    print(f'{dyn_std_dev = }')
-    print()
-
-    stat_std_dev = np.mean([np.linalg.norm(loc - stat_avg)
+    stat_avg_dist = np.mean([np.linalg.norm(loc - stat_avg_loc)
                             for loc in stat_locs.transpose()])
-    dyn_std_dev = np.mean([np.linalg.norm(loc - dyn_avg)
+    dyn_avg_dist = np.mean([np.linalg.norm(loc - dyn_avg_loc)
                            for loc in dyn_locs.transpose()])
 
-    print(f'{stat_avg = }')
-    print(f'{stat_std_dev = }')
-    print(f'{dyn_avg = }')
-    print(f'{dyn_std_dev = }')
+    print(f'{stat_avg_loc = }')
+    print(f'{stat_avg_dist = }')
+    print(f'{dyn_avg_loc = }')
+    print(f'{dyn_avg_dist = }')
 
-    plt.figure(figsize=(5, 4), dpi=300)
-
+    # Define colors for the static and dynamic setting and
+    # use a scatter plot to plot the different landing locations.
     stat_color = '#4b64cf'
     dyn_color = '#cf744b'
 
-    circle_stat = plt.Circle(stat_avg, stat_std_dev,
-                             alpha=0.3, color=stat_color)
-    plt.gca().add_patch(circle_stat)
-
-    circle_dyn = plt.Circle(dyn_avg, dyn_std_dev, alpha=0.3, color=dyn_color)
-    plt.gca().add_patch(circle_dyn)
-
+    plt.figure(figsize=(5, 4), dpi=300)
     plt.tight_layout()
     plt.subplots_adjust(left=0.15, bottom=0.15, right=0.95, top=0.9)
     plt.title('Static and dynamic opening simulations')

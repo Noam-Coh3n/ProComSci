@@ -192,18 +192,6 @@ def change_of_wind(w_x_bounds: tuple = const.w_x_bounds,
 
 
 if __name__ == '__main__':
-    # begin = 0
-    # restrictions = [(-np.inf, begin), (begin, np.inf)]
-    # for x_res in restrictions:
-    #     for y_res in restrictions:
-    #         wind_data = retrieve_data_combined(x_res, y_res)
-    #         plot_data(wind_data)
-
-    #         h, c_x, c_y, increase_rates, avg_h_diff = change_of_wind()
-    #         # print(f'{increase_rates = }')
-    #         # print(f'{avg_h_diff = }')
-    #         plot_data([h, c_x, c_y], data_variable='change')
-
     wind_data = retrieve_data_combined()
     plot_data(wind_data)
 
