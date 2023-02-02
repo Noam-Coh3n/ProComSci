@@ -6,24 +6,14 @@ pygame.init()
 
 # ------------------------------- Color ---------------------------------------
 
-#                Red    Green   Blue
-black =         (0,     0,      0)
-light_black =   (50,    50,     50)
-white =         (255,   255,    255)
-dark_white =    (200,   200,    200)
-red =           (255,   0,      0)
-light_red =     (100,   0,      0)
-green =         (0,     255,    0)
-dark_green =    (0,     200,    0)
-light_green =   (0,     155,    0)
-blue =          (0,     0,      255)
-dark_blue =     (0,     0,      80)
-grey =          (100,   100,    100)
-brown =         (200,   100,     0)
-dark_brown =    (50,    52,     0)
-sand =          (194,   178,    128)
-yellow =        (255,   255,    0)
-purple =        (255,   0,      255)
+black = (0, 0, 0)
+white = (255, 255, 255)
+red = (255, 0, 0)
+green = (0, 255, 0)
+blue = (0, 0, 255)
+brown = (200, 100, 0)
+yellow = (255, 255, 0)
+purple = (255, 0, 255)
 
 # ------------------------------ Settings -------------------------------------
 
@@ -34,16 +24,11 @@ BACKGROUND_COLOR = black
 SCREEN_SIZE = 1000
 PARAMETER_SIZE = 5000
 
-# -----------------------------  Variables ------------------------------------
-
 # ---------------------------- Setup display ----------------------------------
 
 game_display = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
 pygame.display.set_caption(GAME_NAME)
 clock = pygame.time.Clock()
-
-# ------------------------------ Functions ------------------------------------
-
 
 # ------------------------------- Objects -------------------------------------
 
@@ -51,7 +36,7 @@ clock = pygame.time.Clock()
 class Node:
     """ Object that has an 3D position, used in Object3D.
     """
-    def __init__(self, pos : np.array):
+    def __init__(self, pos: np.array):
         self.pos = np.copy(pos)
 
 
@@ -76,18 +61,26 @@ class Cube:
         b = measure[1]
         c = measure[2]
 
-        x = np.array([a,0,0])
-        y = np.array([0,b,0])
-        z = np.array([0,0,c])
+        x = np.array([a, 0, 0])
+        y = np.array([0, b, 0])
+        z = np.array([0, 0, c])
 
         self.nodes = [Node(pos), Node(pos + x), Node(pos + x + y),
                       Node(pos + x + z), Node(pos + x + y + z), Node(pos + y),
                       Node(pos + y + z), Node(pos + z)]
 
-        self.edges = [Edge(self.nodes[0], self.nodes[1]), Edge(self.nodes[0], self.nodes[5]), Edge(self.nodes[0], self.nodes[7]),
-                      Edge(self.nodes[2], self.nodes[1]), Edge(self.nodes[2], self.nodes[5]), Edge(self.nodes[2], self.nodes[4]),
-                      Edge(self.nodes[6], self.nodes[4]), Edge(self.nodes[6], self.nodes[7]), Edge(self.nodes[6], self.nodes[5]),
-                      Edge(self.nodes[3], self.nodes[7]), Edge(self.nodes[3], self.nodes[1]), Edge(self.nodes[3], self.nodes[4])]
+        self.edges = [Edge(self.nodes[0], self.nodes[1]),
+                      Edge(self.nodes[0], self.nodes[5]),
+                      Edge(self.nodes[0], self.nodes[7]),
+                      Edge(self.nodes[2], self.nodes[1]),
+                      Edge(self.nodes[2], self.nodes[5]),
+                      Edge(self.nodes[2], self.nodes[4]),
+                      Edge(self.nodes[6], self.nodes[4]),
+                      Edge(self.nodes[6], self.nodes[7]),
+                      Edge(self.nodes[6], self.nodes[5]),
+                      Edge(self.nodes[3], self.nodes[7]),
+                      Edge(self.nodes[3], self.nodes[1]),
+                      Edge(self.nodes[3], self.nodes[4])]
 
 
 class Circ:
@@ -102,7 +95,8 @@ class Circ:
         self.nodes = []
         self.edges = []
         for i in range(nr_points):
-            self.nodes.append(Node(np.array([np.cos(rot*i) * measure + pos[0], np.sin(rot*i) * measure + pos[1], pos[2]])))
+            self.nodes.append(Node(np.array([np.cos(rot*i) * measure + pos[0],
+                              np.sin(rot*i) * measure + pos[1], pos[2]])))
             if i != 0:
                 self.edges.append(Edge(self.nodes[-2], self.nodes[-1]))
         self.edges.append(Edge(self.nodes[-1], self.nodes[0]))
@@ -127,12 +121,18 @@ class Arrow:
                       Node(pos + (dirc + np.array([-b/3, a/3, 0])) * 4/6),
                       Node(pos + (dirc + np.array([0, 0, -length/3])) * 4/6)]
 
-        self.edges = [Edge(self.nodes[0], self.nodes[1]), Edge(self.nodes[1], self.nodes[3]),
-                      Edge(self.nodes[1], self.nodes[4]), Edge(self.nodes[1], self.nodes[5]),
-                      Edge(self.nodes[1], self.nodes[6]), Edge(self.nodes[2], self.nodes[3]),
-                      Edge(self.nodes[2], self.nodes[4]), Edge(self.nodes[2], self.nodes[5]),
-                      Edge(self.nodes[2], self.nodes[6]), Edge(self.nodes[3], self.nodes[4]),
-                      Edge(self.nodes[4], self.nodes[5]), Edge(self.nodes[5], self.nodes[6]),
+        self.edges = [Edge(self.nodes[0], self.nodes[1]),
+                      Edge(self.nodes[1], self.nodes[3]),
+                      Edge(self.nodes[1], self.nodes[4]),
+                      Edge(self.nodes[1], self.nodes[5]),
+                      Edge(self.nodes[1], self.nodes[6]),
+                      Edge(self.nodes[2], self.nodes[3]),
+                      Edge(self.nodes[2], self.nodes[4]),
+                      Edge(self.nodes[2], self.nodes[5]),
+                      Edge(self.nodes[2], self.nodes[6]),
+                      Edge(self.nodes[3], self.nodes[4]),
+                      Edge(self.nodes[4], self.nodes[5]),
+                      Edge(self.nodes[5], self.nodes[6]),
                       Edge(self.nodes[6], self.nodes[3])]
 
 
@@ -176,9 +176,12 @@ class Text_X:
         self.pos = pos
         self.color = color
         self.line_width = 2
-        self.nodes = [Node(pos + np.array([-size, 0, -size])), Node(pos + np.array([size, 0, -size])),
-                      Node(pos + np.array([-size, 0, size])), Node(pos + np.array([size, 0, size]))]
-        self.edges = [Edge(self.nodes[0], self.nodes[3]), Edge(self.nodes[1], self.nodes[2])]
+        self.nodes = [Node(pos + np.array([-size, 0, -size])),
+                      Node(pos + np.array([size, 0, -size])),
+                      Node(pos + np.array([-size, 0, size])),
+                      Node(pos + np.array([size, 0, size]))]
+        self.edges = [Edge(self.nodes[0], self.nodes[3]),
+                      Edge(self.nodes[1], self.nodes[2])]
 
 
 class Text_Y:
@@ -233,11 +236,15 @@ class World:
         """ Project 3 dim position to a 2 dim position.
         """
 
-        angle_x = np.arctan2((pos[0] - self.camera_pos[0]), (pos[1] - self.camera_pos[1]))
-        angle_z = np.arctan2((pos[2] - self.camera_pos[2]), (pos[1] - self.camera_pos[1]))
+        angle_x = np.arctan2((pos[0] - self.camera_pos[0]),
+                             (pos[1] - self.camera_pos[1]))
+        angle_z = np.arctan2((pos[2] - self.camera_pos[2]),
+                             (pos[1] - self.camera_pos[1]))
 
-        return np.array([SCREEN_SIZE/2 + angle_x/(self.camera_max_angle * np.pi) * SCREEN_SIZE/2,
-                         SCREEN_SIZE/2 + angle_z/(self.camera_max_angle * np.pi) * SCREEN_SIZE/2])
+        return np.array([SCREEN_SIZE/2 + angle_x /
+                         (self.camera_max_angle * np.pi) * SCREEN_SIZE/2,
+                         SCREEN_SIZE/2 + angle_z /
+                         (self.camera_max_angle * np.pi) * SCREEN_SIZE/2])
 
     def add_object(self, obj):
         self.objects.append(obj)
@@ -280,7 +287,8 @@ class World:
                 a_p = tuple(self._project_pos(a_s) * self.zoom)
                 b_p = tuple(self._project_pos(b_s) * self.zoom)
 
-                pygame.draw.line(game_display, obj.color, a_p, b_p, obj.line_width)
+                pygame.draw.line(game_display, obj.color, a_p, b_p,
+                                 obj.line_width)
 
         # Point object.
         else:
@@ -289,7 +297,8 @@ class World:
             a_p = tuple(self._project_pos(a_s) * self.zoom)
             pygame.draw.circle(game_display, obj.color, a_p, obj.size)
 
-# -------------------------------- Game ----------------------------------------
+# ------------------------------- Visual --------------------------------------
+
 
 class Visual:
 
@@ -297,10 +306,13 @@ class Visual:
 
         self.world = World()
 
-        self.world.add_object(Cube(measure=(PARAMETER_SIZE, PARAMETER_SIZE, const.h_plane),
-            pos=np.array([-PARAMETER_SIZE/2, -PARAMETER_SIZE/2, -const.h_plane/2])))
+        self.world.add_object(Cube(measure=(PARAMETER_SIZE, PARAMETER_SIZE,
+                                            const.h_plane),
+                                   pos=np.array([-PARAMETER_SIZE/2,
+                                                 -PARAMETER_SIZE/2,
+                                                 -const.h_plane/2])))
 
-        self.cur_rotation = np.array([0,0,0])
+        self.cur_rotation = np.array([0, 0, 0])
         self.drawn2 = False
 
     def add_diver(self, diver):
@@ -310,17 +322,29 @@ class Visual:
         heights = np.linspace(0, const.h_plane, nr_of_arrows * 2 + 1)
         heights = heights[1::2]
 
-        wind = np.array(list(zip(diver.wind_x(heights), diver.wind_y(heights))))
+        wind = np.array(list(zip(diver.wind_x(heights),
+                                 diver.wind_y(heights))))
         self.world.add_object_cluster(Wind(wind, const.h_plane))
 
-        self.world.add_object(Arrow(500, np.array([1,0]), np.array([PARAMETER_SIZE/2 + 200, -PARAMETER_SIZE/2, const.h_plane/2]), green))
-        self.world.add_object(Arrow(500, np.array([0,1]), np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 200, const.h_plane/2]), purple))
-        self.world.add_object(Text_X(np.array([PARAMETER_SIZE/2 + 1000, -PARAMETER_SIZE/2, const.h_plane/2]), 100, green))
-        self.world.add_object(Text_Y(np.array([-PARAMETER_SIZE/2, PARAMETER_SIZE/2 + 1000, const.h_plane/2]), 100, purple))
+        self.world.add_object(Arrow(500, np.array([1, 0]),
+                                    np.array([PARAMETER_SIZE/2 + 200,
+                                              -PARAMETER_SIZE/2,
+                                              const.h_plane/2]), green))
+        self.world.add_object(Arrow(500, np.array([0, 1]),
+                                    np.array([-PARAMETER_SIZE/2,
+                                              PARAMETER_SIZE/2 + 200,
+                                              const.h_plane/2]), purple))
+        self.world.add_object(Text_X(np.array([PARAMETER_SIZE/2 + 1000,
+                                               -PARAMETER_SIZE/2,
+                                               const.h_plane/2]), 100, green))
+        self.world.add_object(Text_Y(np.array([-PARAMETER_SIZE/2,
+                                               PARAMETER_SIZE/2 + 1000,
+                                               const.h_plane/2]), 100, purple))
         self.world.add_object(Line())
 
     def select_line_interval(self, interval: int):
-        self.traject = [pos for c, pos in enumerate(hp.x2pos(self.diver.x_list)) if c % interval == 0]
+        self.traject = [pos for c, pos in enumerate(hp.x2pos(
+            self.diver.x_list)) if c % interval == 0]
 
     def _draw_screen(self):
         game_display.fill(BACKGROUND_COLOR)
@@ -337,8 +361,11 @@ class Visual:
                 self.frame += 1
 
             # Show phase points.
-            if self.traject[self.frame][2] > (const.h_plane/2 - const.h_opening) and not self.drawn2:
-                self.world.add_object(Ball(self.traject[self.frame], yellow, 4))
+            if self.traject[self.frame][2] > (const.h_plane/2 -
+                                              const.h_opening) \
+                                              and not self.drawn2:
+                self.world.add_object(
+                    Ball(self.traject[self.frame], yellow, 4))
                 self.drawn2 = True
 
         else:
@@ -370,17 +397,8 @@ class Visual:
                     elif event.key == pygame.K_d:
                         self.cur_rotation[2] = -1
 
-                    # if event.key == pygame.K_KP6:
-                    #     x_vel = 5
-                    # elif event.key == pygame.K_KP4:
-                    #     x_vel = -5
-                    # if event.key == pygame.K_KP8:
-                    #     z_vel = -5
-                    # elif event.key == pygame.K_KP2:
-                    #     z_vel = 5
-
                 elif event.type == pygame.KEYUP:
-                    self.cur_rotation = np.array([0,0,0])
+                    self.cur_rotation = np.array([0, 0, 0])
 
                 if event.type == pygame.MOUSEWHEEL:
                     if event.y == -1:
@@ -401,12 +419,3 @@ class Visual:
             pygame.display.update()
             clock.tick(FPS)
             self.time += 1
-
-# -------------------------------- Run -----------------------------------------
-
-
-
-
-# Game().game_loop()
-
-# de particle laat geen lijn zien.
