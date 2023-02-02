@@ -40,8 +40,7 @@ class Node:
 
 
 class Edge:
-    """ Object that has two Nodes, used in Object3D.
-    """
+    """Object that has two Nodes, used in Object3D."""
     def __init__(self, node1: Node, node2: Node):
         self.node1 = node1
         self.node2 = node2
@@ -82,28 +81,10 @@ class Cube:
                       Edge(self.nodes[3], self.nodes[4])]
 
 
-class Circ:
-
-    def __init__(self, measure: int, pos: np.array):
-
-        self.color = red
-        self.line_width = 5
-        nr_points = 6
-        rot = 2*np.pi/nr_points
-
-        self.nodes = []
-        self.edges = []
-        for i in range(nr_points):
-            self.nodes.append(Node(np.array([np.cos(rot*i) * measure + pos[0],
-                              np.sin(rot*i) * measure + pos[1], pos[2]])))
-            if i != 0:
-                self.edges.append(Edge(self.nodes[-2], self.nodes[-1]))
-        self.edges.append(Edge(self.nodes[-1], self.nodes[0]))
-
-
 class Arrow:
-    """ 3D object with specific node positions and edges such that
-        it creates an arrow."""
+    """3D object with specific node positions and edges such that
+    it creates an arrow.
+    """
     def __init__(self, size, direction: np.array, pos: np.array, color=blue):
 
         self.color = color
@@ -136,8 +117,8 @@ class Arrow:
 
 
 class Wind:
-    """ Multiple arrows stacked on top of eachother,
-        evenly spaced between -1 and 1.
+    """Multiple arrows stacked on top of eachother,
+    evenly spaced between -1 and 1.
     """
     def __init__(self, directions: np.array, length: int):
 
@@ -148,6 +129,9 @@ class Wind:
 
 
 class Line:
+    """3D object with an edge between every node and the previous one
+    (except for the first node).
+    """
 
     def __init__(self):
         self.nodes = []
@@ -157,12 +141,16 @@ class Line:
         self.line_width = 1
 
     def add_pos(self, pos):
+        """Add a new node, and create an edge between the first node and
+        the previous one.
+        """
         self.nodes.append(Node(pos))
         if len(self.nodes) >= 2:
             self.edges.append(Edge(self.nodes[-2], self.nodes[-1]))
 
 
 class Ball:
+    """3D object with an single position that creates a dot."""
     def __init__(self, pos, color, size):
         self.pos = pos
         self.color = color
@@ -170,7 +158,9 @@ class Ball:
 
 
 class Text_X:
-
+    """3D object with specific node positions and edges such that
+    it creates the letter x.
+    """
     def __init__(self, pos, size, color):
         self.pos = pos
         self.color = color
@@ -184,7 +174,9 @@ class Text_X:
 
 
 class Text_Y:
-
+    """3D object with specific node positions and edges such that
+    it creates the letter y.
+    """
     def __init__(self, pos, size, color):
         self.pos = pos
         self.color = color
@@ -204,7 +196,7 @@ class Text_Y:
 
 
 class World:
-
+    """The 3D environment where every 3D object is in."""
     def __init__(self):
         self.rotation = np.array([0., 0., 0.])
 
@@ -216,8 +208,7 @@ class World:
         self.object_clusters = []
 
     def _rotate_pos(self, pos: np.array):
-        """ Rotate an 3 dim position around the x, y and z axis.
-        """
+        """Rotate an 3 dim position around the x, y and z axis."""
         [r_x, r_y, r_z] = self.rotation
         rotation_x = np.array([[1, 0, 0],
                                [0, np.cos(r_x), -np.sin(r_x)],
@@ -232,8 +223,7 @@ class World:
         return np.dot(rotation_z, np.dot(rotation_y, np.dot(rotation_x, pos)))
 
     def _project_pos(self, pos: np.array):
-        """ Project 3 dim position to a 2 dim position.
-        """
+        """Project 3 dim position to a 2 dim position."""
 
         angle_x = np.arctan2((pos[0] - self.camera_pos[0]),
                              (pos[1] - self.camera_pos[1]))
@@ -255,6 +245,9 @@ class World:
         self.rotation += rot * 0.05
 
     def update(self, next_pos, end):
+        """Update world by changing the position of every movable item and
+        adding a position to every line.
+        """
 
         for obj in self.objects:
             if 'move' in dir(obj):
@@ -264,9 +257,7 @@ class World:
                 obj.add_pos(next_pos)
 
     def draw(self):
-        """ Draw all objects of world.
-        """
-
+        """Draw all objects of world."""
         for obj in self.objects:
             self._draw_object(obj)
 
@@ -275,8 +266,8 @@ class World:
                 self._draw_object(obj)
 
     def _draw_object(self, obj):
-        """ Calculate the locations of the nodes from the current angle.
-            Project the locations on the 2D creen and draw the edges.
+        """Calculate the locations of the nodes from the current angle.
+        Project the locations on the 2D creen and draw the edges.
         """
         if 'edges' in dir(obj):
             for edge in obj.edges:
@@ -300,7 +291,10 @@ class World:
 
 
 class Visual:
-
+    """This is the main object of this file.
+    Here a world is initialized, objects are added to the world and
+    the world is shown on screen with help of pygame.
+    """
     def __init__(self):
 
         self.world = World()
@@ -315,6 +309,9 @@ class Visual:
         self.drawn2 = False
 
     def add_diver(self, diver):
+        """Add an (sky) Diver object inside the world and add wind and
+        axes.
+        """
         self.diver = diver
 
         nr_of_arrows = 10
@@ -342,6 +339,10 @@ class Visual:
         self.world.add_object(Line())
 
     def select_line_interval(self, interval: int):
+        """Create an list that shows intervals of position list, such that
+        not every position becomes a node. This would otherwiste be to
+        computationally expensive and unnecessary.
+        """
         self.traject = [pos for c, pos in enumerate(hp.x2pos(
             self.diver.x_list)) if c % interval == 0]
 
@@ -350,6 +351,9 @@ class Visual:
         self.world.draw()
 
     def _update_world(self):
+        """Update world by changing the positions of 3D objects, adding new
+        positions in the lines and adding new objects.
+        """
         self.world.rotate(self.cur_rotation)
 
         # Update trajectory
@@ -374,12 +378,14 @@ class Visual:
         self.world.update(self.next_pos, self.end)
 
     def run(self, slowed):
+        """Run visualisation of world with PyGame."""
         self.slowed = slowed
         self.time = 0
         self.frame = 0
 
         self.world.add_object(Ball(self.traject[self.frame], green, 4))
 
+        # Game loop.
         while True:
 
             # Controls
@@ -413,8 +419,6 @@ class Visual:
             # Update
             self._update_world()
             self._draw_screen()
-
-            # Update
             pygame.display.update()
             clock.tick(FPS)
             self.time += 1
