@@ -34,6 +34,7 @@ class Diver():
         self.v_list = []
         self.a_list = []
 
+        # Takes care of the dynamic opening variables.
         self.dynamic_funcs = dynamic_funcs
         if dynamic_funcs:
             self.dist_func, self.dir_func = dynamic_funcs
@@ -44,6 +45,9 @@ class Diver():
         self.int_method = int_method
 
     def _add_new_pos(self):
+        """Add the values to the right list, such as position, speed and
+        acceleration.
+        """
         self.x_list.append(np.copy(self.x))
         self.v_list.append(np.copy(self.v))
         self.a_list.append(np.copy(self.a))
@@ -54,12 +58,11 @@ class Diver():
 
         w_x = self.wind_x(x_z)
         w_y = self.wind_y(x_z)
+
+        # Calculate the distance to the landing area.
         if (self.dynamic_funcs and const.max_h_opening > x_z and
                 x_z > self.h_opening):
             dist = self.dist_func(x_z, np.sqrt(w_x ** 2 + w_y ** 2))
-            # closest_x_to_origin = ((-x_y * w_x + w_y * x_x) /
-            #                        ((w_x ** 2) / w_y + w_y))
-            # closest_y_to_origin = - w_x / w_y * closest_x_to_origin
 
             dir = self.dir_func(x_z, w_x, w_y)
 
@@ -80,6 +83,7 @@ class Diver():
             C = const.C_chute
             A = const.A_chute
 
+        # Calculate the necessary values for the model.
         rho = self.rho(x_z)
         w_x = self.wind_x(x_z)
         w_y = self.wind_y(x_z)
@@ -93,26 +97,33 @@ class Diver():
         [a_x, a_y, a_z] = F / const.m_diver
         return np.array([v_x, v_y, v_z, a_x, a_y, a_z])
 
-    # Integration methods
     def _step(self):
+        """Step function every step of the simulation this function is called.
+        Here the integration method is called and calculated and the values
+        needed are extracted from the numerical method.
+        """
         h = self.step_size
         prev_y = np.append(self.x_list[-1], self.v_list[-1])
         y = np.append(self.x, self.v)
 
+        # Call the integration methods.
         if self.int_method == 'central diff':
             data = [y, prev_y]
         else:
             data = [y]
         new_y, k = integration.integrate(self.int_method, h, self._diff, *data)
 
+        # Add values to there lists.
         self.x = new_y[:3]
         self.v = new_y[3:]
         self.a = k[3:]
 
     def move(self):
+        """Calls the function step and add_new_pos every time step."""
         self._add_new_pos()
         self._step()
 
     def simulate_trajectory(self):
+        """Simulates the diver."""
         while self.x[2] > 0:
             self.move()

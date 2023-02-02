@@ -13,6 +13,7 @@ import constants as const
 
 
 def fit_func(x: float, a: float, b: float, c: float) -> float:
+    """Fit the function, which is a quadratic polynomial."""
     return a * x**2 + b * x + c
 
 
@@ -34,7 +35,6 @@ def plot_data(data, data_variable=['wind', 'rho']):
     nr_of_subplots = len(data) - 1
 
     for i, title in enumerate(title_list, 1):
-        # print(i, ylabel, len(title_list))
         plt.subplot(int(f'1{nr_of_subplots}{i}'))
         plot_and_fit(data[0], data[i], xlabel='height', ylabel=ylabels[i-1],
                      title=title)
@@ -44,8 +44,10 @@ def plot_data(data, data_variable=['wind', 'rho']):
 
 
 def avg_and_dev_fitter(x_vals, y_vals):
+    """Calculate the average and the standard devition."""
     stepsize = 50
     reg_x_vals = np.arange(min(x_vals), max(x_vals), stepsize)
+
     # Order the data in bins.
     nr_of_bins = int(np.ceil(max(x_vals) / stepsize))
     bins = [[] for _ in range(nr_of_bins)]
@@ -97,21 +99,16 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
                          np.array(avg) + np.array(dev),
                          alpha=0.3, color=const.color_dev,
                          label='standard deviation')
-        # plt.plot(reg_x_vals, avg, color=const.color_avg, label='avg values')
 
-    # Plot the quadratic polynomials corresponding to the avg and std dev.
-    # plt.plot(reg_x_vals, fitted_y_vals, color=const.color_fitted_avg,
-    #         label='avg value fit: quadratic')
     if plot_fitted:
         plt.fill_between(reg_x_vals, fitted_y_vals - fitted_dev_vals,
                          fitted_y_vals + fitted_dev_vals,
                          alpha=0.2, color=const.color_fitted_dev,
                          label='Within standard deviation')
-        # plot_avg_and_dev(reg_x_vals, bins)
 
     plt.title(title)
-    # plt.tight_layout()
+    plt.tight_layout()
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
-    # plt.legend()
+    plt.legend()

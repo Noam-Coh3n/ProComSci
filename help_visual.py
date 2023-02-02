@@ -11,6 +11,9 @@ import numpy as np
 
 
 def x2pos(x_list):
+    """Calculate the real position to cube position.
+    This function is used in visual.py.
+    """
     pos_list = np.copy(x_list)
     z0 = x_list[0][2]
     for x in pos_list:

@@ -1,3 +1,12 @@
+#
+# Name: Lars Bijvoet, Erik Leonards, Noam Cohen & Jelle Sipkes
+# Study: Double Bachelor mathematics and computer science.
+#
+# main.py:
+# This is the 'head' file, everything can be seen by running this file and
+# choose between the options 1, 2, 3, 4, 5 and 6.
+# This files uses all the other files to generate the desired plots.
+
 import numpy as np
 from diver import Diver
 import matplotlib.pyplot as plt
@@ -13,6 +22,7 @@ STEP_SIZE = 0.005
 
 
 def visual(myDiver):
+    """Run the visual part."""
     from visual import Visual
     myVisual = Visual()
     myVisual.add_diver(myDiver)
@@ -21,6 +31,9 @@ def visual(myDiver):
 
 
 def plot(myDiver):
+    """Generate the plots from the diver such as
+    speed, height, acceleration.
+    """
     plt.figure(figsize=(16, 10), dpi=100)
 
     # Plot location.
@@ -48,6 +61,7 @@ def plot(myDiver):
         plt.legend()
         plt.xlabel("time (sec)")
 
+    # Plot the wind in the x and y direction.
     for i, (dir, func) in enumerate(zip(['x', 'y'],
                                         [myDiver.wind_x, myDiver.wind_y])):
         plt.subplot(int(f'33{i+7}'))
@@ -62,13 +76,16 @@ def plot(myDiver):
 
 
 def errors():
+    """Run the error plots from the numerical methods."""
     # Setup variables
-    # plt.figure(figsize=(5, 5), dpi=300)
     h_vals = np.logspace(-2, -1, 5)
+
+    # Run the simulation error.
     err.simulate_error(h_vals)
 
 
 def plot_wind(nr_of_sims):
+    """Plot the wind data that is used for the simulation."""
     wind = Wind_generator()
     data = retrieve_data_combined()
 
@@ -90,6 +107,7 @@ def plot_wind(nr_of_sims):
 
 
 def optimal_params():
+    """Plot the opening height and landing locations from dynamic opening."""
     plot_optimal_params()
 
 

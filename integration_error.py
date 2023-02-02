@@ -22,11 +22,18 @@ nr_of_seeds = 3
 
 
 def simulate_method(params):
+    """Simulate the different methods and calculate the global error of the
+    methods. Here the Runge-Kutta order 4 method with step size 10^{-4} is the
+    real data. So the methods are compared to RK4 with step size 10^{-4}.
+    Returns the error.
+    """
+    # Initialise the parameters necessary.
     method, h_vals, y_parts = params
     wind = Wind_generator()
     sum_errors = []
-    for h in h_vals:
 
+    # Run through the different step sizes.
+    for h in h_vals:
         total_error = 0
         for seed, y_part in enumerate(y_parts):
             # Add a diver.
@@ -45,11 +52,15 @@ def simulate_method(params):
 
 
 def simulate_control_experiment(seed):
+    """Here Runge-Kutta order 4 with step size 10^{-4} is simulated
+    and used to compare the different methods.
+    Returns the real data.
+    """
     wind = Wind_generator()
     # Get diver data with stepsize equal to 0.0001 and the Runge Kutta method.
     x = np.array([0., 0., const.h_plane])
     velocity = np.array([const.v_plane, 0., 0.])
-    myDiver = Diver(x, velocity, wind, 0.001, 'rk4', seed)
+    myDiver = Diver(x, velocity, wind, 0.0001, 'rk4', seed)
 
     # Simulate the diver
     myDiver.simulate_trajectory()
@@ -60,7 +71,7 @@ def simulate_control_experiment(seed):
 def simulate_error(h_vals):
     """Simulate the error of the methods Runge-kutta order 4, Euler, Central
     difference and Predictor-corrector. All the methods will be compared to the
-    Runge-kutta order 4 with stepsize 0.001 (This is the good simulation).
+    Runge-kutta order 4 with stepsize 0.0001 (This is the good simulation).
     """
 
     pool = multiprocessing.Pool()

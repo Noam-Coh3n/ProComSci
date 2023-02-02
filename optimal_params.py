@@ -68,7 +68,7 @@ def find_optimal_height() -> float:
     # Plot the average distance and the standard deviaton as transparant area.
     plt.figure(figsize=(5, 4), dpi=200)
     plt.tight_layout()
-    plt.subplots_adjust(left=0.15, bottom=0.15, right=0.95, top=0.9)
+    plt.subplots_adjust(left=0.2, bottom=0.19, right=0.95, top=0.9)
     plt.title('Landing location opening height')
     plt.fill_between(heights, avg - std_dev, avg + std_dev,
                      alpha=0.2, color=const.color_fitted_dev,
