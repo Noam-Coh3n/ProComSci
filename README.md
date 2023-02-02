@@ -15,8 +15,9 @@ Project Computational Science for the bachelor Computer Science at UvA.
  There are also simple calculations such as speed, acceleration and the height. Also the wind is calculated, the wind is
  obtained from a database, then since the wind is scatterd a random walk through the data points has been made with a cubic spline, this will be the wind that will be used in the simulation. For the speed, acceleration, height and wind see the figure below.
  
- ![plot_for_git](https://user-images.githubusercontent.com/85616002/216413659-57a5bc1d-972d-4a9b-bb23-cd5fa20c09f3.png)
- 
+![Figure_1](https://user-images.githubusercontent.com/85616002/216421941-57628722-5953-4904-86e2-514a1d59c00b.png)
+
+
  To obtain this plot, do the following:
  - Download al the files from this repository.
  - Store them in a folder all together.
