@@ -34,8 +34,7 @@ clock = pygame.time.Clock()
 
 
 class Node:
-    """ Object that has an 3D position, used in Object3D.
-    """
+    """Object that has an 3D position, used in Object3D."""
     def __init__(self, pos: np.array):
         self.pos = np.copy(pos)
 
@@ -49,8 +48,8 @@ class Edge:
 
 
 class Cube:
-    """ 3D object with specific node positions and edges such that
-        it creates a cube.
+    """3D object with specific node positions and edges such that
+    it creates a cube.
     """
     def __init__(self, measure: tuple, pos: np.array):
 
