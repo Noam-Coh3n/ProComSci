@@ -24,13 +24,13 @@ def simulate_params(x, y, h_opening, dynamic_funcs=None, seeds=[None]):
     return landing_locations
 
 def simulate_height(h_opening):
-    result = np.array(simulate_params(0, 400, h_opening, seeds=range(10)))
+    result = np.array(simulate_params(0, 400, h_opening, seeds=range(20)))
     y_vals = result.transpose()[1]
     return abs(np.mean(y_vals)), stdev(y_vals)
 
 
 def find_optimal_height():
-    heights = np.arange(100, 401, 20)
+    heights = np.arange(207, 214, 1)
     pool = multiprocessing.Pool()
     result = np.array(pool.map(simulate_height, heights))
     pool.close()
@@ -49,6 +49,8 @@ def find_optimal_height():
     plt.legend()
     plt.show()
 
+    result = np.array(result)[:,0]
+
     return heights[result.argsort()][0]
 
 
@@ -62,7 +64,7 @@ def parallel_func(params):
 
 def find_optimal_x(h_opening):
     pool = multiprocessing.Pool()
-    seeds = range(10)
+    seeds = range(50)
     landing_locations = pool.map(parallel_func, [(0, 0, h_opening, None, s) for s in seeds])
     landing_locations = np.array(landing_locations).reshape((-1, 2))
     # print(landing_locations)
@@ -73,11 +75,11 @@ def find_optimal_x(h_opening):
 
 def plot_optimal_params():
     h = find_optimal_height()
-    # print(h)
+    print(f'{h = }')
     x = find_optimal_x(h)
-    # print(x)
+    print(f'{x = }')
 
-    seeds = range(20)
+    seeds = range(70)
 
     pool = multiprocessing.Pool()
     stat_locs = pool.map(parallel_func, [(x, 400, h, None, s) for s in seeds])
@@ -86,7 +88,6 @@ def plot_optimal_params():
 
     stat_locs = np.array(stat_locs).reshape((-1, 2)).transpose()
     dyn_locs = np.array(dyn_locs).reshape((-1, 2)).transpose()
-
 
     # print(stat_locs)
     # print(dyn_locs)
@@ -118,14 +119,14 @@ def plot_optimal_params():
     stat_color = '#4b64cf'
     dyn_color = '#cf744b'
 
-    # circle_stat = plt.Circle(stat_avg, stat_std_dev, alpha=0.3, color=stat_color)
-    # plt.gca().add_patch(circle_stat)
+    circle_stat = plt.Circle(stat_avg, stat_std_dev, alpha=0.3, color=stat_color)
+    plt.gca().add_patch(circle_stat)
 
-    # circle_dyn = plt.Circle(dyn_avg, dyn_std_dev, alpha=0.3, color=dyn_color)
-    # plt.gca().add_patch(circle_dyn)
+    circle_dyn = plt.Circle(dyn_avg, dyn_std_dev, alpha=0.3, color=dyn_color)
+    plt.gca().add_patch(circle_dyn)
 
     plt.tight_layout()
-    plt.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
+    plt.subplots_adjust(left=0.15, bottom=0.15, right=0.95, top=0.9)
     plt.title('Static and dynamic opening simulations')
     plt.scatter(*stat_locs, s=4, color=stat_color, label='static')
     plt.scatter(*dyn_locs, s=4, color=dyn_color ,label='dynamic')
