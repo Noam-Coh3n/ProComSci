@@ -1,5 +1,5 @@
 # ProComSci
-Project Computational Science for the bachelor Computer Science at UvA
+Project Computational Science for the bachelor Computer Science at UvA.
  Imagine you're a paratrooper on a mission to destroy the football stadium of the Las Vegas Raiders.
  This is (hopefully) quite a leap of the imagination for you, but in this project, this happens thousands of times a day... on a computer.
  We investigate (some of) the work that goes into dropping a skydiver from an airplane, 
