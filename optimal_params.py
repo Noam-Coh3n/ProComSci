@@ -24,26 +24,26 @@ def simulate_params(x, y, h_opening, dynamic_funcs=None, seeds=[None]):
     return landing_locations
 
 def simulate_height(h_opening):
-    result = np.array(simulate_params(0, 400, h_opening, seeds=range(100)))
+    result = np.array(simulate_params(0, 400, h_opening, seeds=range(10)))
     y_vals = result.transpose()[1]
     return abs(np.mean(y_vals)), stdev(y_vals)
 
 
 def find_optimal_height():
-    heights = np.arange(200, 221, 2)
+    heights = np.arange(100, 401, 20)
     pool = multiprocessing.Pool()
     result = np.array(pool.map(simulate_height, heights))
     pool.close()
 
     res = np.array([i[0] for i in result])
     dev = np.array([i[1] for i in result])
-    plt.figure(figsize=(5,4), dpi=200)
+    plt.figure(figsize=(5,3), dpi=350)
     plt.tight_layout()
-    plt.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
+    plt.subplots_adjust(left=0.2, bottom=0.19, right=0.95, top=0.9)
     plt.title('Landing location opening height')
     plt.fill_between(heights, res - dev, res + dev,
                      alpha=0.2, color=const.color_fitted_dev, label='standard deviation')
-    plt.plot(heights, res, '#6D0DD5', label='Opening')
+    plt.plot(heights, res, '#6D0DD5', label='Avg dist from target')
     plt.xlabel('opening height(m)')
     plt.ylabel('distance from origin(m)')
     plt.legend()
