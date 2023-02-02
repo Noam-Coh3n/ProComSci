@@ -366,7 +366,7 @@ class Visual:
             # Show phase points.
             if self.traject[self.frame][2] > (const.h_plane/2 -
                                               const.h_opening) \
-                                              and not self.drawn2:
+                    and not self.drawn2:
                 self.world.add_object(
                     Ball(self.traject[self.frame], yellow, 4))
                 self.drawn2 = True
