@@ -9,6 +9,8 @@ Project Computational Science for the bachelor Computer Science at UvA.
  In our research, answering the following question is key:
  Given a desired landing point, a permitted flying path in Las Vegas and an approximate wind direction conforming to a typical day in Las Vegas,
  what are the best drop position and opening height of the parachute, for a skydiver to land as close as possible to the landing point?
+ 
+ To get this code running you need to install pygame!!!!
 
  The code simulates a skydiver that jumps from an airplane. Different calculations are made such as best drop position and opening height for the parachute.
  Also different numerical methods are tested against the Runge-Kutta order 4 method with step size 10^{-4}.
