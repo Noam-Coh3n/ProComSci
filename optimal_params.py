@@ -55,7 +55,7 @@ def simulate_height(h_opening: float) -> tuple:
 
 def find_optimal_height() -> float:
     """Plots different opening heights and returns the best one."""
-    heights = np.arange(100, 400, 50)
+    heights = np.arange(100, 401, 20)
 
     # Simulates different heights in parallel.
     pool = multiprocessing.Pool()
@@ -103,7 +103,7 @@ def find_optimal_x(h_opening: float) -> float:
     """Returns the optimal x coordinate of the jump position given a
     parachute opening height.
     """
-    seeds = range(20)
+    seeds = range(100)
 
     pool = multiprocessing.Pool()
     landing_locations = pool.map(parallel_func,
@@ -126,7 +126,7 @@ def plot_optimal_params() -> None:
     print(f'{h = }')
     print(f'{x = }')
 
-    seeds = range(10)
+    seeds = range(70)
 
     pool = multiprocessing.Pool()
     stat_locs = pool.map(parallel_func, [(x, 400, h, None, s) for s in seeds])

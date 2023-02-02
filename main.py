@@ -78,7 +78,7 @@ def plot(myDiver):
 def errors():
     """Run the error plots from the numerical methods."""
     # Setup variables
-    h_vals = np.logspace(-2, -1, 5)
+    h_vals = np.logspace(-3, -1, 10)
 
     # Run the simulation error.
     err.simulate_error(h_vals)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                     '3 for errors plot, '
                     '4 for wind simulations, '
                     '5 for optimal params plot, '
-                    '6 for parachute opening plot: '))
+                    '6 for generation of predictor functions: '))
 
     while num not in range(1, 7):
         num = int(input('Please press 1, 2, 3, 4, 5 or 6: '))

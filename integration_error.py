@@ -18,7 +18,7 @@ from wind_and_rho_generator import Wind_generator
 
 # Define the methods that will be compared
 methods = ['rk4', 'euler', 'central diff', 'pred-corr']
-nr_of_seeds = 3
+nr_of_seeds = 10
 
 
 def simulate_method(params):
@@ -75,7 +75,6 @@ def simulate_error(h_vals):
     """
 
     pool = multiprocessing.Pool()
-    # params = list(enumerate([wind] * nr_of_seeds))
     params = np.arange(nr_of_seeds)
     y_parts = pool.map(simulate_control_experiment, params)
     pool.close()
