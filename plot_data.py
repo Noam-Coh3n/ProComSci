@@ -22,6 +22,8 @@ def plot_data(data, data_variable=['wind', 'rho']):
 
     ylabels = [r'$v (m/s)$', r'$v (m/s)$', r'$\rho (kg / m^3)$']
     title_list = []
+
+    # Select the correct title labels.
     if 'wind' in data_variable:
         title_list.extend([r'Wind speed in the $x$ direction',
                            r'Wind speed in the $y$ direction'])
@@ -34,10 +36,11 @@ def plot_data(data, data_variable=['wind', 'rho']):
     plt.figure(figsize=(14, 8), dpi=150)
     nr_of_subplots = len(data) - 1
 
+    # Plot the different subplots with the given data.
     for i, title in enumerate(title_list, 1):
         plt.subplot(int(f'1{nr_of_subplots}{i}'))
         plot_and_fit(data[0], data[i], xlabel='height', ylabel=ylabels[i-1],
-                     title=title)
+                     title=title, plot_fitted=True)
 
     plt.tight_layout()
     plt.show()
@@ -66,8 +69,8 @@ def avg_and_dev_fitter(x_vals, y_vals):
     params_avg, _ = curve_fit(fit_func, reg_x_vals, avg)
     params_dev, _ = curve_fit(fit_func, reg_x_vals, dev)
 
-    avg_fitter = lambda h: fit_func(h, *params_avg)
-    dev_fitter = lambda h: fit_func(h, *params_dev)
+    def avg_fitter(h): return fit_func(h, *params_avg)
+    def dev_fitter(h): return fit_func(h, *params_dev)
 
     return reg_x_vals, avg, dev, (avg_fitter, dev_fitter)
 
@@ -92,13 +95,14 @@ def plot_and_fit(x_vals: list, y_vals: list, xlabel: str = '',
     fitted_y_vals = avg_fitter(reg_x_vals)
     fitted_dev_vals = dev_fitter(reg_x_vals)
 
-    # Plot the standard deviation and average.
+    # Plot the standard deviation.
     if plot_real:
         plt.fill_between(reg_x_vals,
                          np.array(avg) - np.array(dev),
                          np.array(avg) + np.array(dev),
                          alpha=0.3, color=const.color_dev,
                          label='standard deviation')
+
 
     if plot_fitted:
         plt.fill_between(reg_x_vals, fitted_y_vals - fitted_dev_vals,

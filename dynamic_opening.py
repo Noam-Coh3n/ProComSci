@@ -21,14 +21,13 @@ H_VAL = 0.05
 def bilin_func(X, a, b, c, d) -> float:
     """Linear is both components of X."""
     x, y = X
-    return a * x * y + b * x + c * y + d
+    return a*x*y + b*x + c*y + d
 
 
 def trilin_func(X, a1, a2, a3, a4, a5, a6, a7, a8) -> float:
     """Linear in all three components of X."""
     x, y, z = X
-    return a1 * x * y * z + a2 * x * y + a3 * x * z + a4 * y * z \
-        + a5 * x + a6 * y + a7 * z + a8
+    return a1*x*y*z + a2*x*y + a3*x*z + a4*y*z + a5*x + a6*y + a7*z + a8
 
 
 def chute_opening_func() -> None:
