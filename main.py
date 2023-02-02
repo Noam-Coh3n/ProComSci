@@ -81,7 +81,8 @@ def plot_wind(nr_of_sims):
     for i in range(nr_of_sims):
         wind_func = wind.wind(wind_dir='x')
         if i == 0:
-            plt.plot(h_vals, wind_func(h_vals), '#6D0DD5', label="Generated Wind")
+            plt.plot(h_vals, wind_func(h_vals),
+                     '#6D0DD5', label="Generated Wind")
         else:
             plt.plot(h_vals, wind_func(h_vals), '#6D0DD5')
     plt.legend()
