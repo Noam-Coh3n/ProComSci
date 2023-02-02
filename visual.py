@@ -347,6 +347,7 @@ class Visual:
             self.diver.x_list)) if c % interval == 0]
 
     def _draw_screen(self):
+        """Draw the world on the screen."""
         game_display.fill(BACKGROUND_COLOR)
         self.world.draw()
 
@@ -366,7 +367,7 @@ class Visual:
             # Show phase points.
             if self.traject[self.frame][2] > (const.h_plane/2 -
                                               const.h_opening) \
-                                              and not self.drawn2:
+                    and not self.drawn2:
                 self.world.add_object(
                     Ball(self.traject[self.frame], yellow, 4))
                 self.drawn2 = True
